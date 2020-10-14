@@ -40,7 +40,7 @@ class ArtistCreditSimilarityQuery(Query):
     def outputs(self):
         return ['count', 'artist_credit_name', 'artist_credit_id', 'related_artist_credit_name', 'related_artist_credit_id']
 
-    def fetch(self, params, offset=-1, limit=-1):
+    def fetch(self, params, offset=-1, count=-1):
 
         ac_ids = tuple([ p['[artist_credit_id]'] for p in params ])
         threshold = int(params[0]['threshold'])

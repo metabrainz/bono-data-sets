@@ -21,7 +21,7 @@ class ArtistMSIDLookupQuery(Query):
     def outputs(self):
         return ['artist_msid', 'artist_credit_id', '[artist_credit_mbids]', 'artist_credit_name']
 
-    def fetch(self, params, offset=-1, limit=-1):
+    def fetch(self, params, offset=-1, count=-1):
 
         msid = tuple([ p['artist_msid'] for p in params ])
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:

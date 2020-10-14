@@ -21,7 +21,7 @@ class ArtistCreditIdLookupQuery(Query):
     def outputs(self):
         return ['artist_credit_id', 'artist_credit_name', 'artist_credit_mbids']
 
-    def fetch(self, params, offset=-1, limit=-1):
+    def fetch(self, params, offset=-1, count=-1):
 
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:

@@ -21,7 +21,7 @@ class ArtistCreditNameLookupQuery(Query):
     def outputs(self):
         return ['artist_credit_id', 'artist_credit_name', 'disambiguation']
 
-    def fetch(self, params, offset=-1, limit=-1):
+    def fetch(self, params, offset=-1, count=-1):
 
         ac_names = [ p['artist_credit_name'].lower() for p in params ]
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:

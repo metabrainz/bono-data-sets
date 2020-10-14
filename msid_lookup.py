@@ -21,7 +21,7 @@ class MSIDLookupQuery(Query):
     def outputs(self):
         return ['mb_artist_name', 'mb_release_name', 'mb_recording_name', 'mb_release_mbid', 'mb_recording_mbid']
 
-    def fetch(self, params, offset=-1, limit=-1):
+    def fetch(self, params, offset=-1, count=-1):
 
         msid = tuple([ p['recording_msid'] for p in params ])
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:

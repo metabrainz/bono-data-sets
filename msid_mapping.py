@@ -24,7 +24,7 @@ class MSIDMappingQuery(Query):
                 'mb_artist_name', 'mb_release_name', 'mb_recording_name', 
                 'mb_release_mbid', 'mb_recording_mbid', 'mb_artist_credit_id']
 
-    def fetch(self, params, offset=-1, limit=-1):
+    def fetch(self, params, offset=-1, count=-1):
 
         args = []
         for i, param in enumerate(params):

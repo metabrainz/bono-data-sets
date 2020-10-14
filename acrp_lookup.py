@@ -23,7 +23,7 @@ class ArtistCreditRecordingPairsLookupQuery(Query):
         return ['artist_credit_name', 'release_name', 'recording_name', 
                 'artist_credit_id', 'release_mbid', 'recording_mbid']
 
-    def fetch(self, params, offset=-1, limit=-1):
+    def fetch(self, params, offset=-1, count=-1):
         artists = []
         recordings = []
         for param in params:
