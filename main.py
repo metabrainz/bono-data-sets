@@ -14,6 +14,7 @@ from ar_country_lookup import ArtistCountryLookupQuery
 from artist_mbid_to_ac_lookup import ArtistCreditIdLookupQuery
 from area_random_recording import AreaRandomRecordingQuery
 from area_lookup import AreaLookupQuery
+from acrp_year_lookup import ArtistCreditRecordingPairsYearLookupQuery
 
 register_query(MSIDMappingQuery())
 register_query(MSIDLookupQuery())
@@ -29,6 +30,7 @@ register_query(ArtistCreditIdLookupQuery())
 register_query(ArtistCreditIdLookupQuery())
 register_query(AreaRandomRecordingQuery())
 register_query(AreaLookupQuery())
+register_query(ArtistCreditRecordingPairsYearLookupQuery())
 
 if __name__ == "__main__":
     app.debug = True

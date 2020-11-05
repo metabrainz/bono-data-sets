@@ -6,7 +6,6 @@ from datasethoster import Query
 from datasethoster.main import app, register_query
 import config
 
-
 class ArtistCreditRecordingPairsYearLookupQuery(Query):
 
     def names(self):
@@ -33,16 +32,10 @@ class ArtistCreditRecordingPairsYearLookupQuery(Query):
 
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
-                curs.execute("""SELECT DISTINCT ac.name AS artist_credit_name, 
-                                       r.name AS recording_name,
+                curs.execute("""SELECT DISTINCT artist_credit_name, 
+                                       recording_name,
                                        year
-                                  FROM mapping.tmp_recording_artist_credit_year
-                                  JOIN recording r
-                                    ON r.id = recording_id
-                                  JOIN release rl
-                                    ON rl.id = release_id
-                                  JOIN artist_credit ac
-                                    ON r.artist_credit = ac.id
+                                  FROM mapping.recording_artist_credit_pairs_year
                                  WHERE artist_credit_name IN %s
                                    AND recording_name IN %s""", (artists, recordings))
 
