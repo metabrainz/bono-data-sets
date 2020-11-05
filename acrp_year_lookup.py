@@ -12,7 +12,7 @@ class ArtistCreditRecordingPairsYearLookupQuery(Query):
         return ("acrp-year-lookup", "MusicBrainz Artist Credit Recording Pairs Year lookup")
 
     def inputs(self):
-        return ['artist_credit_name', 'recording_name']
+        return ['[artist_credit_name]', '[recording_name]']
 
     def introduction(self):
         return """This page allows you to enter the name of an artist and the name of a recording (track)
@@ -25,8 +25,8 @@ class ArtistCreditRecordingPairsYearLookupQuery(Query):
         artists = []
         recordings = []
         for param in params:
-            artists.append("".join(param['artist_credit_name'].lower().split()))
-            recordings.append("".join(param['recording_name'].lower().split()))
+            artists.append("".join(param['[artist_credit_name]'].lower().split()))
+            recordings.append("".join(param['[recording_name]'].lower().split()))
         artists = tuple(artists)
         recordings = tuple(recordings)
 
