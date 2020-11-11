@@ -4,6 +4,8 @@ import psycopg2
 import psycopg2.extras
 from datasethoster import Query
 from datasethoster.main import app, register_query
+from unidecode import unidecode
+
 import config
 
 
@@ -27,8 +29,8 @@ class ArtistCreditRecordingPairsLookupQuery(Query):
         artists = []
         recordings = []
         for param in params:
-            artists.append("".join(param['artist_credit_name'].lower().split()))
-            recordings.append("".join(param['recording_name'].lower().split()))
+            artists.append("".join(unidecode(param['artist_credit_name'].lower()).split()))
+            recordings.append("".join(unidecode(param['recording_name'].lower()).split()))
         artists = tuple(artists)
         recordings = tuple(recordings)
 

@@ -4,6 +4,7 @@ import psycopg2
 import psycopg2.extras
 from datasethoster import Query
 from datasethoster.main import app, register_query
+from unidecode import unidecode
 import config
 
 class ArtistCreditRecordingPairsYearLookupQuery(Query):
@@ -24,9 +25,14 @@ class ArtistCreditRecordingPairsYearLookupQuery(Query):
     def fetch(self, params, offset=-1, count=-1):
         artists = []
         recordings = []
+        index = {}
         for param in params:
-            artists.append("".join(param['[artist_credit_name]'].lower().split()))
-            recordings.append("".join(param['[recording_name]'].lower().split()))
+            artist = "".join(unidecode(param['[artist_credit_name]'].lower()).split())
+            recording = "".join(unidecode(param['[recording_name]'].lower()).split())
+            artists.append(artist)
+            recordings.append(recording)
+            index[artist + recording] = (param['[artist_credit_name]'], param['[recording_name]'])
+
         artists = tuple(artists)
         recordings = tuple(recordings)
 
@@ -41,10 +47,11 @@ class ArtistCreditRecordingPairsYearLookupQuery(Query):
 
                 results = []
                 while True:
-                    data = curs.fetchone()
-                    if not data:
+                    row = curs.fetchone()
+                    if not row:
                         break
 
-                    results.append(dict(data))
+                    artist, recording = index[row['artist_credit_name'] + row['recording_name']]
+                    results.append({ 'artist_credit_name': artist, 'recording_name': recording, 'year': row['year'] })
 
                 return results
