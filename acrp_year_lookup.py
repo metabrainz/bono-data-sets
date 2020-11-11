@@ -2,6 +2,7 @@
 
 import psycopg2
 import psycopg2.extras
+import re
 from datasethoster import Query
 from datasethoster.main import app, register_query
 from unidecode import unidecode
@@ -27,8 +28,8 @@ class ArtistCreditRecordingPairsYearLookupQuery(Query):
         recordings = []
         index = {}
         for param in params:
-            artist = "".join(unidecode(param['[artist_credit_name]'].lower()).split())
-            recording = "".join(unidecode(param['[recording_name]'].lower()).split())
+            recording = unidecode(re.sub(r'\W+', '', param['[recording_name]'].lower()))
+            artist = unidecode(re.sub(r'\W+', '', param['[artist_credit_name]'].lower()))
             artists.append(artist)
             recordings.append(recording)
             index[artist + recording] = (param['[artist_credit_name]'], param['[recording_name]'])
@@ -51,7 +52,10 @@ class ArtistCreditRecordingPairsYearLookupQuery(Query):
                     if not row:
                         break
 
-                    artist, recording = index[row['artist_credit_name'] + row['recording_name']]
-                    results.append({ 'artist_credit_name': artist, 'recording_name': recording, 'year': row['year'] })
+                    try:
+                        artist, recording = index[row['artist_credit_name'] + row['recording_name']]
+                        results.append({ 'artist_credit_name': artist, 'recording_name': recording, 'year': row['year'] })
+                    except KeyError:
+                        pass
 
                 return results
