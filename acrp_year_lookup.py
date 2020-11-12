@@ -26,13 +26,11 @@ class ArtistCreditRecordingPairsYearLookupQuery(Query):
     def fetch(self, params, offset=-1, count=-1):
         artists = []
         recordings = []
-        index = {}
         for param in params:
             recording = unidecode(re.sub(r'\W+', '', param['[recording_name]'].lower()))
             artist = unidecode(re.sub(r'\W+', '', param['[artist_credit_name]'].lower()))
             artists.append(artist)
             recordings.append(recording)
-            index[artist + recording] = (param['[artist_credit_name]'], param['[recording_name]'])
 
         artists = tuple(artists)
         recordings = tuple(recordings)
@@ -46,15 +44,24 @@ class ArtistCreditRecordingPairsYearLookupQuery(Query):
                                  WHERE artist_credit_name IN %s
                                    AND recording_name IN %s""", (artists, recordings))
 
-                results = []
+                index = {}
                 while True:
                     row = curs.fetchone()
                     if not row:
                         break
 
+                    index[row['artist_credit_name'] + row['recording_name']] = row['year']
+
+                results = []
+                for param in params:
+                    recording = unidecode(re.sub(r'\W+', '', param['[recording_name]'].lower()))
+                    artist = unidecode(re.sub(r'\W+', '', param['[artist_credit_name]'].lower()))
                     try:
-                        artist, recording = index[row['artist_credit_name'] + row['recording_name']]
-                        results.append({ 'artist_credit_name': artist, 'recording_name': recording, 'year': row['year'] })
+                        results.append({ 
+                                         'artist_credit_name': param['[artist_credit_name]'], 
+                                         'recording_name': param['[recording_name]'], 
+                                         'year': index[artist+recording] 
+                                       })
                     except KeyError:
                         pass
 
