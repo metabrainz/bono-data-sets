@@ -11,7 +11,7 @@ psycopg2.extras.register_uuid()
 
 class GenreLookupQuery(Query):
     '''
-        Look up musicbrainz genre data for a list of recordings, based on MBID. 
+        Look up musicbrainz genre data for a list of recordings, based on MBID.
     '''
 
     MAX_ITEMS_PER_RECORDING = 20
@@ -34,8 +34,8 @@ class GenreLookupQuery(Query):
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
                 query = '''SELECT r.gid::TEXT AS recording_mbid,
-                                  array_agg(t.name) AS tags,
-                                  array_agg(g.name) AS genres
+                                  t.name AS tag,
+                                  g.name AS genre
                              FROM recording_tag rt
                              JOIN recording r
                                ON r.id = rt.recording
@@ -43,10 +43,10 @@ class GenreLookupQuery(Query):
                                ON rt.tag = t.id
                         LEFT JOIN genre g
                                ON g.name = t.name
-                            WHERE r.gid 
+                            WHERE rt.count > 0 AND r.gid
                                IN %s
-                         GROUP BY r.gid
-                         ORDER BY r.gid'''
+                         ORDER BY r.gid, rt.count DESC'''
+
 
                 args = [mbids]
                 if count > 0:
@@ -64,17 +64,40 @@ class GenreLookupQuery(Query):
                         break
 
                     data = dict(row)
-                    data['tags'] = ",".join([ d for d in data['tags'][:self.MAX_ITEMS_PER_RECORDING] if d])
-                    data['genres'] = ",".join([ d for d in data['genres'][:self.MAX_ITEMS_PER_RECORDING] if d])
-                    
-                    index[row['recording_mbid']] = data
+                    mbid = row['recording_mbid']
+                    if mbid not in index:
+                        index[mbid] = { 'tags': [], 'genres': [] }
+
+                    index[mbid]['tags'].append(row['tag'])
+                    if row['genre']:
+                        index[mbid]['genres'].append(row['genre'])
 
                 output = []
                 for p in params:
                     mbid = p['recording_mbid']
                     try:
-                        output.append({ 'recording_mbid': mbid, 'tags': index[mbid]['tags'], 'genres': index[mbid]['genres'] })
+                        output.append({ 'recording_mbid': mbid,
+                                        'tags': ",".join(index[mbid]['tags'][:self.MAX_ITEMS_PER_RECORDING]),
+                                        'genres': ",".join(index[mbid]['genres'][:self.MAX_ITEMS_PER_RECORDING])
+                                     })
                     except KeyError:
                         output.append({ 'recording_mbid': mbid, 'tags': '', 'genres': '' })
 
         return output
+
+foo = """
+                           SELECT r.gid::TEXT AS recording_mbid,
+                                  t.name AS tags,
+                                  g.name AS genres,
+                                  rt.count as tag_count
+                             FROM recording_tag rt
+                             JOIN recording r
+                               ON r.id = rt.recording
+                             JOIN tag t
+                               ON rt.tag = t.id
+                        LEFT JOIN genre g
+                               ON g.name = t.name
+                            WHERE rt.count > 0 AND r.gid
+                               IN ('00007960-9d81-4192-b548-ad33d6b0ca54','1618b28c-2de2-428a-a460-fbe451b5fbde')
+                         ORDER BY r.gid, rt.count DESC
+"""
