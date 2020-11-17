@@ -16,6 +16,7 @@ from area_random_recording import AreaRandomRecordingQuery
 from area_lookup import AreaLookupQuery
 from acrp_year_lookup import ArtistCreditRecordingPairsYearLookupQuery
 from genre_lookup import GenreLookupQuery
+from acrm_search import ArtistCreditRecordingMappingSearchQuery
 
 register_query(MSIDMappingQuery())
 register_query(MSIDLookupQuery())
@@ -33,6 +34,7 @@ register_query(AreaRandomRecordingQuery())
 register_query(AreaLookupQuery())
 register_query(ArtistCreditRecordingPairsYearLookupQuery())
 register_query(GenreLookupQuery())
+register_query(ArtistCreditRecordingMappingSearchQuery())
 
 if __name__ == "__main__":
     app.debug = True
