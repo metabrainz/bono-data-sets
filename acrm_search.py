@@ -19,7 +19,9 @@ class ArtistCreditRecordingMappingSearchQuery(Query):
 
     def introduction(self):
         return """This page allows you to enter the name of an artist and the name of a recording (track)
-                  and the query will attempt to find a potentially fuzzy match in MusicBrainz."""
+                  and the query will attempt to find a potentially fuzzy match in MusicBrainz. Available fields
+                  in the DB are: 'artist_credit', 'recording' or 'combined'. One ore more of these fields
+                  must be specified in the query_by field."""
 
     def outputs(self):
         return ['artist_credit_name', 'recording_name']
