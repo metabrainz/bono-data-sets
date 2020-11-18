@@ -20,7 +20,7 @@ class GenreLookupQuery(Query):
         return ("genre-mbid-lookup", "MusicBrainz Genre/Tag by Recording MBID Lookup")
 
     def inputs(self):
-        return ['recording_mbid']
+        return ['[recording_mbid]']
 
     def introduction(self):
         return """Look up genres/tags given a recording MBID"""
@@ -30,7 +30,7 @@ class GenreLookupQuery(Query):
 
     def fetch(self, params, offset=-1, count=-1):
 
-        mbids = tuple([ psycopg2.extensions.adapt(p['recording_mbid']) for p in params ])
+        mbids = tuple([ psycopg2.extensions.adapt(p['[recording_mbid]']) for p in params ])
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
                 query = '''SELECT r.gid::TEXT AS recording_mbid,
@@ -74,7 +74,7 @@ class GenreLookupQuery(Query):
 
                 output = []
                 for p in params:
-                    mbid = p['recording_mbid']
+                    mbid = p['[recording_mbid]']
                     try:
                         output.append({ 'recording_mbid': mbid,
                                         'tags': ",".join(index[mbid]['tags'][:self.MAX_ITEMS_PER_RECORDING]),
@@ -84,20 +84,3 @@ class GenreLookupQuery(Query):
                         output.append({ 'recording_mbid': mbid, 'tags': '', 'genres': '' })
 
         return output
-
-foo = """
-                           SELECT r.gid::TEXT AS recording_mbid,
-                                  t.name AS tags,
-                                  g.name AS genres,
-                                  rt.count as tag_count
-                             FROM recording_tag rt
-                             JOIN recording r
-                               ON r.id = rt.recording
-                             JOIN tag t
-                               ON rt.tag = t.id
-                        LEFT JOIN genre g
-                               ON g.name = t.name
-                            WHERE rt.count > 0 AND r.gid
-                               IN ('00007960-9d81-4192-b548-ad33d6b0ca54','1618b28c-2de2-428a-a460-fbe451b5fbde')
-                         ORDER BY r.gid, rt.count DESC
-"""
