@@ -43,7 +43,9 @@ class ArtistCreditRecordingMappingSearchQuery(Query):
 
         search_parameters = {
             'q'         : query,
-            'query_by'  : query_by
+            'query_by'  : query_by,
+            'prefix'    : 'no',
+            'num_typos' : 5
         }
 
         hits = client.collections['recording_artist_credit_pairs'].documents.search(search_parameters)
