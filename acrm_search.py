@@ -1,3 +1,4 @@
+import re
 import ujson
 
 import typesense
@@ -8,6 +9,8 @@ from unidecode import unidecode
 
 import config
 
+def prepare_query(text):
+    return unidecode(re.sub(" +", " ", re.sub(r'[^\w ]+', '', text)).lower())
 
 class ArtistCreditRecordingMappingSearchQuery(Query):
 
@@ -15,21 +18,21 @@ class ArtistCreditRecordingMappingSearchQuery(Query):
         return ("acrm-search", "MusicBrainz Artist Credit Recording Mapping search")
 
     def inputs(self):
-        return ['query', 'query_by']
+        return ['query']
 
     def introduction(self):
         return """This page allows you to enter the name of an artist and the name of a recording (track)
-                  and the query will attempt to find a potentially fuzzy match in MusicBrainz. Available fields
-                  in the DB are: 'artist_credit', 'recording' or 'combined'. One ore more of these fields
-                  must be specified in the query_by field."""
+                  and the query will attempt to find a (potentially fuzzy) match in MusicBrainz. Construct
+                  the search query by combining artist name and recording name. (e.g. 'portishead strangers')"""
 
     def outputs(self):
-        return ['artist_credit_name', 'recording_name']
+        return ['recording_name', 'recording_mbid',
+                'release_name', 'release_mbid',
+                'artist_credit_name', 'artist_credit_id']
 
     def fetch(self, params, offset=-1, count=-1):
 
         query = params[0]['query']
-        query_by = params[0]['query_by'] or "artist_credit_name,recording_name"
 
         client = typesense.Client({
             'nodes': [{
@@ -42,17 +45,23 @@ class ArtistCreditRecordingMappingSearchQuery(Query):
         })
 
         search_parameters = {
-            'q'         : query,
-            'query_by'  : query_by,
+            'q'         : prepare_query(query),
+            'query_by'  : "combined",
             'prefix'    : 'no',
             'num_typos' : 5
         }
 
-        hits = client.collections['recording_artist_credit_pairs'].documents.search(search_parameters)
+        print(search_parameters)
+
+        hits = client.collections['recording_artist_credit_mapping'].documents.search(search_parameters)
 
         output = []
         for hit in hits['hits']:
-            output.append({ 'artist_credit_name': hit['document']['artist_credit'],
-                            'recording_name': hit['document']['recording'] })
+            output.append({ 'artist_credit_name': hit['document']['artist_credit_name'],
+                            'artist_credit_id': hit['document']['artist_credit_id'],
+                            'release_name': hit['document']['release_name'],
+                            'release_mbid': hit['document']['release_mbid'],
+                            'recording_name': hit['document']['recording_name'],
+                            'recording_mbid': hit['document']['recording_mbid'] })
 
         return output
