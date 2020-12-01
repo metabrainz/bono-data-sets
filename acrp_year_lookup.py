@@ -40,7 +40,7 @@ class ArtistCreditRecordingPairsYearLookupQuery(Query):
                 curs.execute("""SELECT DISTINCT artist_credit_name, 
                                        recording_name,
                                        year
-                                  FROM mapping.recording_artist_credit_pairs_year
+                                  FROM mapping.year_mapping
                                  WHERE artist_credit_name IN %s
                                    AND recording_name IN %s""", (artists, recordings))
 

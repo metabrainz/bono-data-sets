@@ -36,7 +36,7 @@ class ArtistCreditRecordingMappingSearchQuery(Query):
 
         client = typesense.Client({
             'nodes': [{
-              'host': 'typesense',
+              'host': config.TYPESENSE_HOST,
               'port': '8108',
               'protocol': 'http',
             }],
@@ -50,8 +50,6 @@ class ArtistCreditRecordingMappingSearchQuery(Query):
             'prefix'    : 'no',
             'num_typos' : 5
         }
-
-        print(search_parameters)
 
         hits = client.collections['recording_artist_credit_mapping'].documents.search(search_parameters)
 
