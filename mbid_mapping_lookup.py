@@ -43,28 +43,15 @@ class MBIDMappingSearch(Query):
 
     # Other possible detunings:
     #  - Swap artist/recording
-    #  - remove trailing parens / brackets from recording
     #  - remove track numbers from recording
     def detune_query_string(self, query):
 
-        print("detune: '%s'" % query)
-        index = query.find("(")
-        if index >= 0:
-            return query[:index].strip()
+        for s in ("(", "[", " ft ", " ft. ", " feat ", " feat. ", " featuring "):
+            index = query.find(s)
+            if index >= 0:
+                return query[:index].strip()
 
-        index = query.find("[")
-        if index >= 0:
-            return query[:index].strip()
-
-        index = query.find(" ft ")
-        if index >= 0:
-            return query[:index].strip()
-
-        index = query.find(" feat ")
-        if index >= 0:
-            return query[:index].strip()
-
-        return None
+        return ""
 
         
     def lookup(self, artist_credit_name_p, recording_name_p):
@@ -95,68 +82,86 @@ class MBIDMappingSearch(Query):
 
         return (distance(artist_credit_name, artist_credit_name_hit), distance(recording_name, recording_name_hit))
 
+    def evaluate_hit(self, hit, artist_credit_name, recording_name):
+        """
+            Evaluate the given prepared search terms and hit. If the hit doesn't match,
+            attempt to detune it and try again for detuned artist and detuned recording.
+            If the hit is good enough, return it, otherwise return None.
+        """
+        ac_hit = hit['document']['artist_credit_name']
+        r_hit = hit['document']['recording_name']
+
+        ac_detuned = self.detune_query_string(ac_hit)
+        r_detuned = self.detune_query_string(r_hit)
+
+        is_alt = False
+        while True:
+            ac_dist, r_dist = self.compare(artist_credit_name, recording_name, prepare_query(ac_hit), prepare_query(r_hit))
+            if ac_dist <= self.EDIT_DIST_THRESHOLD and r_dist <= self.EDIT_DIST_THRESHOLD:
+                if is_alt:
+                    self.good_alt += 1
+                return hit
+
+            if ac_dist > self.EDIT_DIST_THRESHOLD and ac_detuned:
+                ac_hit = ac_detuned
+                ac_detuned = ""
+                is_alt = True
+                continue
+
+            if r_dist > self.EDIT_DIST_THRESHOLD and r_detuned:
+                r_hit = r_detuned
+                r_detuned = ""
+                is_alt = True
+                continue
+
+            return None
+
+
     def search(self, artist_credit_name, recording_name):
 
         if self.debug:
             print("- %-60s %-60s" % (artist_credit_name[:59], recording_name[:59]))
 
         artist_credit_name_p = prepare_query(artist_credit_name)
-        ac_detuned = self.detune_query_string(artist_credit_name_p)
-
         recording_name_p = prepare_query(recording_name)
-        r_detuned = self.detune_query_string(recording_name_p)
+
+        ac_detuned = prepare_query(self.detune_query_string(artist_credit_name_p))
+        r_detuned = prepare_query(self.detune_query_string(recording_name_p))
 
         tries = 0
-        alt_try = False
         while True:
            
             tries += 1
             hit = self.lookup(artist_credit_name_p, recording_name_p)
             if hit:
-                a_dist, r_dist = self.compare(artist_credit_name_p, recording_name_p,
-                                              prepare_query(hit['document']['artist_credit_name']),
-                                              prepare_query(hit['document']['recording_name']))
+                hit = self.evaluate_hit(hit, artist_credit_name_p, recording_name_p)
 
-            print(a_dist, r_dist)
-            if a_dist > self.EDIT_DIST_THRESHOLD:
-                detuned = self.detune_query_string(hit['document']['artist_credit_name'])
-                if detuned:
-                    print("detuned '%s'" % detuned)
-                    a_dist, r_dist = self.compare(artist_credit_name_p, recording_name_p,
-                                                  prepare_query(detuned),
-                                                  prepare_query(hit['document']['recording_name']))
-
-            if not hit or a_dist > self.EDIT_DIST_THRESHOLD or r_dist > self.EDIT_DIST_THRESHOLD:
+            if not hit:
                 hit = None
                 if ac_detuned:
                     artist_credit_name_p = ac_detuned
-                    alt_try = True
+                    ac_detuned = None
                     continue
 
                 if r_detuned:
                     recording_name_p = r_detuned
-                    alt_try = True
+                    r_detuned = None
                     continue
 
                 if self.debug:
                     print("FAIL.\n");
-            else:
-                if alt_try:
-                    self.good_alt += 1
-                if self.debug:
-                    print("OK.\n");
-
+                break
 
             break
 
         self.total += 1
         if not hit:
             self.bad += 1
-            if not self.debug:
-                print("F: %-60s %-60s" % (artist_credit_name[:59], recording_name[:59]))
             return None
 
         self.good += 1
+        if self.debug:
+            print("OK.\n");
 
         return { 'artist_credit_name': hit['document']['artist_credit_name'],
                  'artist_credit_id': hit['document']['artist_credit_id'],
@@ -173,7 +178,7 @@ class MBIDMappingSearch(Query):
                 curs.execute("""SELECT DISTINCT recording_msid, artist_credit_name, recording_name 
                                            FROM first_listened_in_2020_artist_recording
                                        ORDER BY artist_credit_name, recording_name
-                                          LIMIT 1000 OFFSET 510500""")
+                                          LIMIT 5000 OFFSET 520700""")
                 for row in curs.fetchall():
                     self.search(row['artist_credit_name'], row['recording_name'])
 

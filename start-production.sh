@@ -1,14 +1,15 @@
 #!/bin/bash
 
-DOMAIN="datasets.listenbrainz.org"
+DS_DOMAIN="datasets.listenbrainz.org"
+SIM_DOMAIN="similarity.acousticbrainz.org"
 
 echo "---- start bono-data-sets"
 docker run -d -p 8000:80 \
     --name bono-data-sets \
     --network musicbrainzdocker_default \
-    --env "LETSENCRYPT_HOST=$DOMAIN" \
+    --env "LETSENCRYPT_HOST=$DS_DOMAIN" \
     --env "LETSENCRYPT_EMAIL=rob@metabrainz.org" \
-    --env "VIRTUAL_HOST=$DOMAIN" \
+    --env "VIRTUAL_HOST=$DS_DOMAIN" \
     metabrainz/bono-data-sets
 
 echo "---- start nginx proxy, le"
@@ -18,7 +19,8 @@ docker run -d -p 80:80 -p 443:443 \
    -v /etc/nginx/vhost.d \
    -v /usr/share/nginx/html \
    -v /var/run/docker.sock:/tmp/docker.sock:ro \
-   -v `pwd`/nginx/proxy:/etc/nginx/vhost.d/$DOMAIN:ro \
+   -v `pwd`/nginx/proxy:/etc/nginx/vhost.d/$DS_DOMAIN:ro \
+   -v `pwd`/nginx/proxy:/etc/nginx/vhost.d/$SIM_DOMAIN:ro \
    --label com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy \
    --restart unless-stopped \
    --network=musicbrainzdocker_default \
