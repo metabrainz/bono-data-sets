@@ -12,6 +12,7 @@ from area_lookup import AreaLookupQuery
 from acrp_year_lookup import ArtistCreditRecordingPairsYearLookupQuery
 from genre_lookup import GenreLookupQuery
 from acrm_search import ArtistCreditRecordingMappingSearchQuery
+from first_listened_2020 import FirstListenedIn2020Query
 
 register_query(MSIDMappingQuery())
 register_query(MSIDLookupQuery())
@@ -24,6 +25,7 @@ register_query(AreaLookupQuery())
 register_query(ArtistCreditRecordingPairsYearLookupQuery())
 register_query(GenreLookupQuery())
 register_query(ArtistCreditRecordingMappingSearchQuery())
+register_query(FirstListenedIn2020Query())
 
 if __name__ == "__main__":
     app.debug = True

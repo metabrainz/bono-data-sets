@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 
 import re
+import socket
+from time import sleep
 import ujson
 
 import psycopg2
 import psycopg2.extras
+from psycopg2.extras import execute_values
 import typesense
 import typesense.exceptions
+import requests.exceptions
 from datasethoster import Query
 from datasethoster.main import app, register_query
 from unidecode import unidecode
@@ -14,8 +18,18 @@ from Levenshtein import distance
 
 import config
 
+BATCH_SIZE = 100
+
 def prepare_query(text):
     return unidecode(re.sub(" +", " ", re.sub(r'[^\w ]+', '', text)).lower())
+
+def insert_rows(curs, table, values):
+    '''
+        Helper function to insert a large number of rows into postgres in one go.
+    '''
+
+    query = "INSERT INTO " + table + " VALUES %s"
+    execute_values(curs, query, values, template=None)
 
 class MBIDMappingSearch(Query):
 
@@ -26,7 +40,7 @@ class MBIDMappingSearch(Query):
         self.good_alt = 0
         self.bad = 0
         self.total = 0
-        self.debug = True
+        self.debug = False
 
         self.client = typesense.Client({
             'nodes': [{
@@ -35,11 +49,12 @@ class MBIDMappingSearch(Query):
               'protocol': 'http',
             }],
             'api_key': config.TYPESENSE_API_KEY,
-            'connection_timeout_seconds': 2
+            'connection_timeout_seconds': 10
         })
 
     def report(self):
-        print("%d matched (%d alt matches), %d unmatched. %.f%% good matches" % (self.good, self.good_alt, self.bad, 100.0 * (float(self.good) / self.total)))
+        if self.total:
+            print("%d matched (%d alt matches), %d unmatched. %.f%% good matches" % (self.good, self.good_alt, self.bad, 100.0 * (float(self.good) / self.total)))
 
     # Other possible detunings:
     #  - Swap artist/recording
@@ -63,7 +78,14 @@ class MBIDMappingSearch(Query):
             'num_typos' : 5
         }
 
-        hits = self.client.collections['recording_artist_credit_mapping'].documents.search(search_parameters)
+        while True:
+            try:
+                hits = self.client.collections['mbid_mapping'].documents.search(search_parameters)
+                break
+            except requests.exceptions.ReadTimeout:
+                print("Got socket timeout, sleeping 5 seconds, trying again.")
+                sleep(5)
+
         if len(hits["hits"]) == 0:
             self.total += 1
             self.bad += 1
@@ -163,24 +185,53 @@ class MBIDMappingSearch(Query):
         if self.debug:
             print("OK.\n");
 
-        return { 'artist_credit_name': hit['document']['artist_credit_name'],
-                 'artist_credit_id': hit['document']['artist_credit_id'],
-                 'release_name': hit['document']['release_name'],
-                 'release_mbid': hit['document']['release_mbid'],
-                 'recording_name': hit['document']['recording_name'],
-                 'recording_mbid': hit['document']['recording_mbid'] }
+        return [hit['document']['artist_credit_name'],
+                hit['document']['artist_credit_id'],
+                hit['document']['release_name'],
+                hit['document']['release_mbid'],
+                hit['document']['recording_name'],
+                hit['document']['recording_mbid']]
 
 
     def lookup_rows(self):
 
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
-            with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
-                curs.execute("""SELECT DISTINCT recording_msid, artist_credit_name, recording_name 
-                                           FROM first_listened_in_2020_artist_recording
-                                       ORDER BY artist_credit_name, recording_name
-                                          LIMIT 5000 OFFSET 520700""")
-                for row in curs.fetchall():
-                    self.search(row['artist_credit_name'], row['recording_name'])
+            with psycopg2.connect(config.DB_CONNECT_MB) as ins_conn:
+                with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
+                    with ins_conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as ins_curs:
+                        curs.execute("""SELECT DISTINCT fl.recording_msid, fl.artist_credit_name, fl.recording_name 
+                                                   FROM mapping.first_listened_2020 fl
+                                              LEFT JOIN mapping.first_listened_2020_mapping m
+                                                     ON fl.recording_msid = m.recording_msid
+                                                  WHERE m.recording_msid is null
+                                               ORDER BY fl.artist_credit_name, fl.recording_name""")
+                        results = []
+                        for row in curs.fetchall():
+                            hit = self.search(row['artist_credit_name'], row['recording_name'])
+                            if hit:
+                                hit.insert(0, row["recording_msid"])
+                                ins_conn.commit()
+                                results.append(hit)
+
+                            if len(results) == BATCH_SIZE:
+                                insert_rows(ins_curs, "mapping.first_listened_2020_mapping", results)
+                                results = []
+                                self.report()
+
+                        if len(results):
+                            insert_rows(ins_curs, "mapping.first_listened_2020_mapping", results)
+                            ins_conn.commit()
+
+ignore_me = """
+ create table mapping.first_listened_2020_mapping (recording_msid TEXT NOT NULL,
+                                                   artist_credit_name TEXT NOT NULL, 
+                                                   artist_credit_id INTEGER NOT NULL, 
+                                                   release_name TEXT NOT NULL, 
+                                                   release_mbid TEXT NOT NULL, 
+                                                   recording_name TEXT NOT NULL, 
+                                                   recording_mbid TEXT NOT NULL);
+create index first_listened_2020_mapping_ndx_recording_msid on mapping.first_listened_2020_mapping ( recording_msid);
+"""
 
 mapping = MBIDMappingSearch()
 mapping.lookup_rows()
