@@ -5,4 +5,5 @@ Unidecode==1.1.1
 requests
 typesense
 six
+python-Levenshtein
 -e git+https://github.com/mayhem/data-set-hoster.git#egg=datasethoster
