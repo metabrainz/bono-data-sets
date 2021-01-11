@@ -1,17 +1,12 @@
 #!/usr/bin/env python3
 
 import re
-import socket
 from time import sleep
-import ujson
 
-import psycopg2
-import psycopg2.extras
 import typesense
 import typesense.exceptions
 import requests.exceptions
 from datasethoster import Query
-from datasethoster.main import app, register_query
 from unidecode import unidecode
 from Levenshtein import distance
 

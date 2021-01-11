@@ -3,7 +3,6 @@ from operator import itemgetter
 import psycopg2
 import psycopg2.extras
 from datasethoster import Query
-from datasethoster.main import app, register_query
 import config
 
 SELECT_RELATIONS_QUERY = '''
