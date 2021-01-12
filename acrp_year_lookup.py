@@ -4,7 +4,6 @@ import psycopg2
 import psycopg2.extras
 import re
 from datasethoster import Query
-from datasethoster.main import app, register_query
 from unidecode import unidecode
 import config
 
