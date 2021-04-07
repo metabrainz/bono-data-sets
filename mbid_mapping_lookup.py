@@ -90,7 +90,7 @@ class MBIDMappingSearch(Query):
 
         while True:
             try:
-                hits = self.client.collections['mbid_mapping'].documents.search(search_parameters)
+                hits = self.client.collections['mbid_mapping_latest'].documents.search(search_parameters)
                 break
             except requests.exceptions.ReadTimeout:
                 print("Got socket timeout, sleeping 5 seconds, trying again.")
