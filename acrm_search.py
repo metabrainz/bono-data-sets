@@ -1,5 +1,4 @@
 import re
-import ujson
 
 import typesense
 import typesense.exceptions

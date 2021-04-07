@@ -33,6 +33,9 @@ register_query(ArtistCreditRecordingLookupQuery())
 
 app = create_app('config')
 
+# Needs to be after register_query
+app = create_app('config')
+
 if __name__ == "__main__":
     app.debug = True
     app.run(host="0.0.0.0", port=4201)

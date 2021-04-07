@@ -1,6 +1,3 @@
-import sys
-import uuid
-
 import psycopg2
 import psycopg2.extras
 from datasethoster import Query

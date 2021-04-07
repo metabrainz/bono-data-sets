@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 
 import re
-import socket
 from time import sleep
-import ujson
 
-import psycopg2
-import psycopg2.extras
 import typesense
 import typesense.exceptions
 import requests.exceptions
