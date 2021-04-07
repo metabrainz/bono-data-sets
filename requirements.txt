@@ -6,4 +6,4 @@ requests
 typesense
 six
 python-Levenshtein
--e git+https://github.com/mayhem/data-set-hoster.git#egg=datasethoster
+git+https://github.com/mayhem/data-set-hoster.git#egg=datasethoster

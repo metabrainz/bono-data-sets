@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from datasethoster.main import app, register_query
+from datasethoster.main import create_app, register_query
 from msid_mapping import MSIDMappingQuery
 from msid_lookup import MSIDLookupQuery
 from artist_msid_lookup import ArtistMSIDLookupQuery
@@ -14,6 +14,7 @@ from genre_lookup import GenreLookupQuery
 from acrm_search import ArtistCreditRecordingMappingSearchQuery
 from first_listened_2020 import FirstListenedIn2020Query
 from mbid_mapping_lookup import MBIDMappingSearch
+from artist_credit_recording_lookup import ArtistCreditRecordingLookupQuery
 
 register_query(MSIDMappingQuery())
 register_query(MSIDLookupQuery())
@@ -28,6 +29,9 @@ register_query(GenreLookupQuery())
 register_query(ArtistCreditRecordingMappingSearchQuery())
 register_query(FirstListenedIn2020Query())
 register_query(MBIDMappingSearch())
+register_query(ArtistCreditRecordingLookupQuery())
+
+app = create_app('config')
 
 if __name__ == "__main__":
     app.debug = True

@@ -11,7 +11,6 @@ import typesense
 import typesense.exceptions
 import requests.exceptions
 from datasethoster import Query
-from datasethoster.main import app, register_query
 from unidecode import unidecode
 from Levenshtein import distance
 

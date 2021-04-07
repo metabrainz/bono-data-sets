@@ -4,7 +4,6 @@ import ujson
 import typesense
 import typesense.exceptions
 from datasethoster import Query
-from datasethoster.main import app, register_query
 from unidecode import unidecode
 
 import config

@@ -4,7 +4,6 @@ import uuid
 import psycopg2
 import psycopg2.extras
 from datasethoster import Query
-from datasethoster.main import app, register_query
 import config
 
 psycopg2.extras.register_uuid()
