@@ -16,20 +16,25 @@ class ArtistCreditRecordingLookupQuery(Query):
         return ("acr-lookup", "MusicBrainz Artist Credit Recording lookup")
 
     def inputs(self):
-        return ['artist_credit_name', 'recording_name']
+        return ['[artist_credit_name]', '[recording_name]']
 
     def introduction(self):
         return """This lookup performs an semi-exact string match on Artist Credit and Recording. The given parameters will have non-word
                   characters removed, unaccted and lower cased before being looked up in the database."""
 
     def outputs(self):
-        return ['artist_credit_name', 'release_name', 'recording_name', 
+        return ['index', 'artist_credit_arg', 'recording_arg',
+                'artist_credit_name', 'release_name', 'recording_name', 
                 'artist_credit_id', 'release_mbid', 'recording_mbid']
 
     def fetch(self, params, offset=-1, count=-1):
         lookup_strings = []
-        for param in params:
-            lookup_strings.append(unidecode(re.sub(r'[^\w]+', '', param["artist_credit_name"] + param["recording_name"]).lower()))
+        string_index = {}
+        for i, param in enumerate(params):
+            cleaned = unidecode(re.sub(r'[^\w]+', '', param["[artist_credit_name]"] + param["[recording_name]"]).lower())
+            lookup_strings.append(cleaned)
+            string_index[cleaned] = i
+
         lookup_strings = tuple(lookup_strings)
 
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
@@ -39,7 +44,8 @@ class ArtistCreditRecordingLookupQuery(Query):
                                        release_name,
                                        release_mbid,
                                        recording_name,
-                                       recording_mbid
+                                       recording_mbid,
+                                       combined_lookup
                                   FROM mapping.mbid_mapping
                                  WHERE combined_lookup IN %s""", (lookup_strings,))
 
@@ -49,6 +55,11 @@ class ArtistCreditRecordingLookupQuery(Query):
                     if not data:
                         break
 
+                    data = dict(data)
+                    index = string_index[data["combined_lookup"]]
+                    data["recording_arg"] = params[index]["[recording_name]"]
+                    data["artist_credit_arg"] = params[index]["[artist_credit_name]"]
+                    data["index"] = index
                     results.append(dict(data))
 
                 return results
