@@ -4,7 +4,7 @@ from datasethoster import Query
 import psycopg2
 import psycopg2.extras
 from werkzeug.exceptions import NotFound
-from listenbrainz import config
+import config
 
 
 class ArtistCountryFromArtistCreditIdQuery(Query):
@@ -25,7 +25,8 @@ class ArtistCountryFromArtistCreditIdQuery(Query):
 
     def fetch(self, params, count=-1, offset=-1):
 
-        with psycopg2.connect(config.MB_DATABASE_URI) as conn:
+#        with psycopg2.connect(config.MB_DATABASE_URI) as conn:
+        with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
 
                 acs = tuple([r['[artist_credit_id]'] for r in params])
