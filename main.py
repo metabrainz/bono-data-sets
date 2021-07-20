@@ -10,6 +10,7 @@ from area_random_recording import AreaRandomRecordingQuery
 from area_lookup import AreaLookupQuery
 from genre_lookup import GenreLookupQuery
 from first_listened_2020 import FirstListenedIn2020Query
+from artist_country_from_artist_credit_id import ArtistCountryFromArtistCreditIdQuery
 
 register_query(MSIDMappingQuery())
 register_query(MSIDLookupQuery())
@@ -20,6 +21,7 @@ register_query(AreaRandomRecordingQuery())
 register_query(AreaLookupQuery())
 register_query(GenreLookupQuery())
 register_query(FirstListenedIn2020Query())
+register_query(ArtistCountryFromArtistCreditIdQuery())
 
 app = create_app('config')
 
