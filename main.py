@@ -11,6 +11,7 @@ from area_lookup import AreaLookupQuery
 from genre_lookup import GenreLookupQuery
 from first_listened_2020 import FirstListenedIn2020Query
 from artist_country_from_artist_credit_id import ArtistCountryFromArtistCreditIdQuery
+from releases_from_listen_stream import ReleasesFromListenStream
 
 register_query(MSIDMappingQuery())
 register_query(MSIDLookupQuery())
@@ -22,6 +23,7 @@ register_query(AreaLookupQuery())
 register_query(GenreLookupQuery())
 register_query(FirstListenedIn2020Query())
 register_query(ArtistCountryFromArtistCreditIdQuery())
+register_query(ReleasesFromListenStream())
 
 app = create_app('config')
 

@@ -8,3 +8,8 @@ typesense
 six
 python-Levenshtein
 git+https://github.com/mayhem/data-set-hoster.git#egg=datasethoster
+pysolr==3.9.0
+icecream
+fuzzywuzzy
+solrq
+ago
