@@ -9,7 +9,7 @@ from ac_name_lookup import ArtistCreditNameLookupQuery
 from area_random_recording import AreaRandomRecordingQuery
 from area_lookup import AreaLookupQuery
 from genre_lookup import GenreLookupQuery
-from first_listened_2020 import FirstListenedIn2020Query
+from top_discoveries import TopDiscoveriesQuery
 from artist_country_from_artist_credit_id import ArtistCountryFromArtistCreditIdQuery
 from releases_from_listen_stream import ReleasesFromListenStream
 
@@ -21,7 +21,7 @@ register_query(ArtistCreditNameLookupQuery())
 register_query(AreaRandomRecordingQuery())
 register_query(AreaLookupQuery())
 register_query(GenreLookupQuery())
-register_query(FirstListenedIn2020Query())
+register_query(TopDiscoveriesQuery())
 register_query(ArtistCountryFromArtistCreditIdQuery())
 register_query(ReleasesFromListenStream())
 

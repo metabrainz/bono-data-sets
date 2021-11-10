@@ -12,6 +12,7 @@ from solrq import Q
 from icecream import ic
 import requests
 from fuzzywuzzy.fuzz import partial_ratio as fuzzy
+from unidecode import unidecode
 
 
 SOLR_HOST = "localhost"
@@ -21,6 +22,11 @@ SOLR_CORE = "release-index"
 LISTENBRAINZ_HOST = "https://api.listenbrainz.org"
 
 MIN_NUMBER_OF_RECORDINGS = 3
+
+
+def normalize(str):
+    return unidecode(str.lower())
+
 
 def solr_search(artist, release, recordings, track_count=None, debug=False):
 
@@ -44,9 +50,9 @@ def solr_search(artist, release, recordings, track_count=None, debug=False):
 ACCEPT_THRESHOLD = 85
 def lookup_album_on_solr(lb_release, debug=False):
 
-    query = {"title": lb_release["release_name"],
-             "ac_name": lb_release["artist_credit_name"],
-             "recording_names": lb_release["recordings"] }
+    query = {"title": normalize(lb_release["release_name"]),
+             "ac_name": normalize(lb_release["artist_credit_name"]),
+             "recording_names": [ normalize(r) for r in lb_release["recordings"]] }
 
     solr = pysolr.Solr('http://%s:%d/solr/%s' % (SOLR_HOST, SOLR_PORT, SOLR_CORE), always_commit=True)
     docs = solr.search(Q(**query), fl="*,score", debug="true")
