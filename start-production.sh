@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DS_DOMAIN="datasets.listenbrainz.org"
+DS_DOMAIN="bono.metabrainz.org"
 SIM_DOMAIN="similarity.acousticbrainz.org"
 
 echo "---- start bono-data-sets"

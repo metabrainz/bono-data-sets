@@ -20,8 +20,7 @@ class TopDiscoveriesQuery(Query):
         return """Look up the tracks a user first listened to this year."""
 
     def outputs(self):
-        return ['recording_msid', 'recording_mbid', 'recording_name', 'artist_credit_name', 
-                'listen_count', 'user_name']
+        return ['recording_mbid', 'recording_name', 'artist_credit_name', 'listen_count', 'user_name']
 
     def fetch(self, params, offset=-1, count=-1):
 
