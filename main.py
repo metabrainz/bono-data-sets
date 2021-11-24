@@ -12,6 +12,7 @@ from genre_lookup import GenreLookupQuery
 from top_discoveries import TopDiscoveriesQuery
 from artist_country_from_artist_credit_id import ArtistCountryFromArtistCreditIdQuery
 from releases_from_listen_stream import ReleasesFromListenStream
+from top_new_tracks import TopNewTracksQuery
 
 register_query(MSIDMappingQuery())
 register_query(MSIDLookupQuery())
@@ -24,6 +25,7 @@ register_query(GenreLookupQuery())
 register_query(TopDiscoveriesQuery())
 register_query(ArtistCountryFromArtistCreditIdQuery())
 register_query(ReleasesFromListenStream())
+register_query(TopNewTracksQuery())
 
 app = create_app('config')
 
