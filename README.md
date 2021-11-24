@@ -1,14 +1,14 @@
 build
 -----
 
-docker build -t metabrainz/mbid-mapping-hoster .
+docker build -t metabrainz/bono-data-sets .
 
 debug
 -----
 
-docker run -rm -p 8000:80 --name mbid-mapping-hoster --network musicbrainzdocker_default metabrainz/mbid-mapping-hoster
+docker run -rm -p 8000:80 --name bono-data-sets --network musicbrainzdocker_default metabrainz/bono-data-sets
 
 host
 ----
 
-docker run -d -p 8000:80 --name mbid-mapping-hoster --network musicbrainzdocker_default metabrainz/mbid-mapping-hoster
+docker run -d -p 8000:80 --name bono-data-sets --network musicbrainzdocker_default metabrainz/bono-data-sets
