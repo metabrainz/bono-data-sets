@@ -1,7 +1,10 @@
+import uuid
+
 import psycopg2
 import psycopg2.extras
 from datasethoster import Query
 import config
+from werkzeug.exceptions import BadRequest
 
 DEFAULT_ROWS = 50
 
@@ -11,7 +14,7 @@ class AreaRandomRecordingQuery(Query):
         return ("area-random-recordings", "Select a random set of recordings from artists for a given country.")
 
     def inputs(self):
-        return ['area_id', 'start_year', 'end_year']
+        return ['area_mbid', 'start_year', 'end_year']
 
     def introduction(self):
         return """Given a country (area) randomly select a number of recordings for that country."""
@@ -25,11 +28,15 @@ class AreaRandomRecordingQuery(Query):
             count = DEFAULT_ROWS
 
         try:
-            area = int(params[0]['area_id'])
             start_year = int(params[0]['start_year'])
             end_year = int(params[0]['end_year'])
         except ValueError:
-            raise BadRequest("area_id, start_year and end_year should all be integers")
+            raise BadRequest("start_year and end_year should both be integers")
+
+        try:
+            area = uuid.UUID(params[0]['area_mbid'])
+        except ValueError:
+            raise BadRequest("area_mbid must be a valid MBID")
 
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
@@ -54,7 +61,9 @@ class AreaRandomRecordingQuery(Query):
                                          FROM artist a
                                          JOIN artist_credit_name acn
                                            ON acn.artist = a.id
-                                        WHERE a.area = %s
+                                        WHERE a.area = (SELECT id
+                                                          FROM area
+                                                         WHERE gid = %s)
                                         LIMIT 100)
                               AND rc.date_year >= %s
                               AND rc.date_year <= %s
