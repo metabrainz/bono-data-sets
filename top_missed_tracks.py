@@ -70,7 +70,7 @@ class TopMissedTracksQuery(Query):
                               WHERE user_name IN (%s, %s, %s)
                            GROUP BY q.recording_mbid, r.name, ac.name
                            ORDER BY listen_count DESC
-                              LIMIT 50"""
+                              LIMIT 100"""
 
                 users = similar_users[:3]
                 users.append(user_name)
