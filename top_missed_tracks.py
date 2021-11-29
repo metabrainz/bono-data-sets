@@ -42,7 +42,7 @@ class TopMissedTracksQuery(Query):
 
                 query = """SELECT q.recording_mbid
                                 , r.name AS recording_name
-                                , acn.name AS artist_credit_name
+                                , ac.name AS artist_credit_name
                                 , sum(listen_count) AS listen_count
                              FROM (
                                    SELECT recording_mbid
@@ -67,17 +67,14 @@ class TopMissedTracksQuery(Query):
                                  ON q.recording_mbid = r.gid
                                JOIN artist_credit ac
                                  ON r.artist_credit = ac.id
-                               JOIN artist_credit_name acn
-                                 ON acn.artist_credit = ac.id
                               WHERE user_name IN (%s, %s, %s)
-                           GROUP BY q.recording_mbid, r.name, acn.name
+                           GROUP BY q.recording_mbid, r.name, ac.name
                            ORDER BY listen_count DESC
                               LIMIT 50"""
 
                 users = similar_users[:3]
                 users.append(user_name)
                 users.extend(similar_users[:3])
-                print(users)
                 curs.execute(query, tuple(users))
                 output = []
                 while True:
