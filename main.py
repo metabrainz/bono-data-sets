@@ -14,6 +14,7 @@ from artist_country_from_artist_credit_id import ArtistCountryFromArtistCreditId
 from releases_from_listen_stream import ReleasesFromListenStream
 from top_new_tracks import TopNewTracksQuery
 from top_missed_tracks import TopMissedTracksQuery
+from bpm_key_from_recording import BPMKeyLookupQuery
 
 register_query(MSIDMappingQuery())
 register_query(MSIDLookupQuery())
@@ -28,6 +29,7 @@ register_query(ArtistCountryFromArtistCreditIdQuery())
 register_query(ReleasesFromListenStream())
 register_query(TopNewTracksQuery())
 register_query(TopMissedTracksQuery())
+register_query(BPMKeyLookupQuery())
 
 # Needs to be after register_query
 app = create_app('config')
