@@ -77,6 +77,6 @@ class GenreLookupQuery(Query):
                                         'genres': ",".join(index[mbid]['genres'][:self.MAX_ITEMS_PER_RECORDING])
                                      })
                     except KeyError:
-                        output.append({ 'recording_mbid': mbid, 'tags': '', 'genres': '' })
+                        pass
 
         return output
