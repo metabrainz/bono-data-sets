@@ -55,7 +55,7 @@ class TopMissedTracksQuery(Query):
                              FROM mapping.tracks_of_the_year t
                             WHERE user_name IN (%s, %s, %s)
                               AND recording_mbid NOT IN (SELECT * FROM exclude_tracks)
-                         GROUP BY recording_mbid, recording_name, artist_credit_name
+                         GROUP BY recording_mbid, recording_name, artist_credit_name, artist_mbids
                          ORDER BY listen_count DESC
                             LIMIT 100"""
 
