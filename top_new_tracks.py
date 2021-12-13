@@ -22,7 +22,7 @@ class TopNewTracksQuery(Query):
         return """Look up a users top tracks that were released in the current year."""
 
     def outputs(self):
-        return ['recording_mbid', 'recording_name', 'artist_credit_name', 'listen_count']
+        return ['recording_mbid', 'recording_name', 'artist_credit_name', 'artist_mbids', 'listen_count']
 
     def fetch(self, params, offset=0, count=50):
 
@@ -30,10 +30,14 @@ class TopNewTracksQuery(Query):
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
 
-                query = """select t.recording_mbid, artist_credit_name, recording_name, listen_count
-                             from mapping.tracks_of_the_year t 
-                             join mapping.year_mapping y 
-                               on t.recording_mbid = y.recording_mbid 
+                query = """SELECT t.recording_mbid
+                                , t.artist_credit_name
+                                , t.artist_mbids
+                                , t.recording_name
+                                , listen_count
+                             FROM mapping.tracks_of_the_year t 
+                             JOIN mapping.year_mapping y 
+                               ON t.recording_mbid = y.recording_mbid 
                             WHERE year = %s
                               AND user_name = %s
                          ORDER BY listen_count DESC
