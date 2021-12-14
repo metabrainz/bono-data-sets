@@ -1,5 +1,7 @@
+from time import sleep
 import datetime
 
+from werkzeug.exceptions import InternalServerError
 import psycopg2
 import psycopg2.extras
 from datasethoster import Query
@@ -28,10 +30,21 @@ class TopMissedTracksQuery(Query):
 
     def fetch(self, params, offset=0, count=50):
 
-        user_name = params[0]["user_name"]
-        r = requests.get(f"https://api.listenbrainz.org/1/user/{user_name}/similar-users")
-        if r.status_code != 200:
-            return []
+        while True:
+            user_name = params[0]["user_name"]
+            r = requests.get(f"https://api.listenbrainz.org/1/user/{user_name}/similar-users")
+            if r.status_code == 429:
+                print("429! Sleeping 1s")
+                sleep(1)
+                continue
+
+            if r.status_code == 404:
+                return []
+
+            if r.status_code == 200:
+                break
+
+            raise InternalServerError("Cannot fetch similar users.")
 
         similar_users = []
         for row in r.json()["payload"]:
