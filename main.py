@@ -5,6 +5,7 @@ from msid_mapping import MSIDMappingQuery
 from msid_lookup import MSIDLookupQuery
 from artist_msid_lookup import ArtistMSIDLookupQuery
 from ar_similarity import ArtistCreditSimilarityQuery
+from rec_similarity import RecordingSimilarityQuery
 from ac_name_lookup import ArtistCreditNameLookupQuery
 from area_random_recording import AreaRandomRecordingQuery
 from area_lookup import AreaLookupQuery
@@ -20,6 +21,7 @@ register_query(MSIDMappingQuery())
 register_query(MSIDLookupQuery())
 register_query(ArtistMSIDLookupQuery())
 register_query(ArtistCreditSimilarityQuery())
+register_query(RecordingSimilarityQuery())
 register_query(ArtistCreditNameLookupQuery())
 register_query(AreaRandomRecordingQuery())
 register_query(AreaLookupQuery())
