@@ -16,7 +16,7 @@ class RecordingSimilarityQuery(Query):
         return ['window_size', 'filter_same_artist', 'recording_mbid']
 
     def introduction(self):
-        return """Given a recording MBID, find similar recordings. window_size must be 1, 5 or 10. filter_same_artist should be one of (1, 0, t, f)"""
+        return """Given a recording MBID, find similar recordings. window_size must be 1, 2, 3, 5 or 10. filter_same_artist should be one of (1, 0, t, f)"""
 
     def outputs(self):
         return ['similarity', 'artist_credit_name', 'recording_name', 'recording_mbid']
@@ -29,10 +29,10 @@ class RecordingSimilarityQuery(Query):
         try:
             window_size = int(params[0]['window_size'])
         except ValueError:
-            raise BadRequest("window_size must be 1, 5 or 10.")
+            raise BadRequest("window_size must be 1, 2, 3, 5 or 10.")
 
-        if window_size not in (1, 5, 10):
-            raise BadRequest("window_size must be 1, 5 or 10.")
+        if window_size not in (1, 2, 3, 5, 10):
+            raise BadRequest("window_size must be 1, 2, 3, 5 or 10.")
 
         table = "mapping.recording_similarity_index_%d" % window_size
 
@@ -134,18 +134,10 @@ class RecordingSimilarityQuery(Query):
                                      ON r0.gid = rs.mbid0
                                    JOIN artist_credit ac0
                                      ON r0.artist_credit = ac0.id
-                                   JOIN artist_credit_name acn0
-                                     ON acn0.artist_credit = ac0.id
-                                   JOIN artist a0
-                                     ON acn0.artist = a0.id
                                    JOIN recording r1
                                      ON r1.gid = rs.mbid1
                                    JOIN artist_credit ac1
                                      ON r1.artist_credit = ac1.id
-                                   JOIN artist_credit_name acn1
-                                     ON acn1.artist_credit = ac1.id
-                                   JOIN artist a1
-                                     ON acn1.artist = a1.id
                                   WHERE (rs.mbid0 = %s OR rs.mbid1 = %s)
                                   LIMIT %s
                                  OFFSET %s""", (rec_mbid, rec_mbid, count, offset))
