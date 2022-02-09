@@ -4,7 +4,7 @@ from datasethoster.main import create_app, register_query
 from msid_mapping import MSIDMappingQuery
 from msid_lookup import MSIDLookupQuery
 from artist_msid_lookup import ArtistMSIDLookupQuery
-from ar_similarity import ArtistCreditSimilarityQuery
+#from ar_similarity import ArtistCreditSimilarityQuery
 from lb_ar_similarity import ArtistSimilarityQuery
 from rec_similarity import RecordingSimilarityQuery
 from ac_name_lookup import ArtistCreditNameLookupQuery
@@ -21,7 +21,7 @@ from bpm_key_from_recording import BPMKeyLookupQuery
 register_query(MSIDMappingQuery())
 register_query(MSIDLookupQuery())
 register_query(ArtistMSIDLookupQuery())
-register_query(ArtistCreditSimilarityQuery())
+#register_query(ArtistCreditSimilarityQuery())
 register_query(ArtistSimilarityQuery())
 register_query(RecordingSimilarityQuery())
 register_query(ArtistCreditNameLookupQuery())
