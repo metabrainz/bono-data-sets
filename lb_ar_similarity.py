@@ -13,10 +13,10 @@ class ArtistSimilarityQuery(Query):
         return ("artist-similarity", "ListenBrainz Artist Similarity")
 
     def inputs(self):
-        return ['window_size', 'artist_mbid']
+        return ['table', 'artist_mbid']
 
     def introduction(self):
-        return """Given an artist MBID, find similar artist."""
+        return """Given an artist MBID, find similar artist. Table must be a valid table name to use (e.g. artist_similarity_index_name_1) """
 
     def outputs(self):
         return ['similarity', 'artist_name', 'artist_mbid']
@@ -24,15 +24,8 @@ class ArtistSimilarityQuery(Query):
     def fetch(self, params, offset=0, count=50):
 
         ar_mbid = params[0]['artist_mbid']
-        try:
-            window_size = int(params[0]['window_size'])
-        except ValueError:
-            raise BadRequest("window_size must be 1, 2, or 3.")
-
-        if window_size not in (1, 2, 3):
-            raise BadRequest("window_size must be 1, 2, or 3.")
-
-        table = "mapping.artist_similarity_index_%d" % window_size
+        table = params[0]['table']
+        table = f"mapping.{table}"
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
 

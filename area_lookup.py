@@ -15,14 +15,14 @@ class AreaLookupQuery(Query):
         return """Lookup an area code. Must be spelled just like on MusicBrainz."""
 
     def outputs(self):
-        return ['area_id', 'area_name']
+        return ['area_mbid', 'area_name']
 
     def fetch(self, params, offset=-1, count=-1):
 
         areas = tuple([ p['[area]'].lower() for p in params ])
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
-                query = """SELECT area.id AS area_id,
+                query = """SELECT area.gid AS area_mbid,
                                   area.name AS area_name
                              FROM area
                             WHERE lower(area.name) in %s"""

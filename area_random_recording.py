@@ -20,9 +20,9 @@ class AreaRandomRecordingQuery(Query):
         return """Given a country (area) randomly select a number of recordings for that country."""
 
     def outputs(self):
-        return ['recording_mbid', 'recording_name', 'artist_credit_id', 'artist_credit_name', 'year']
+        return ['recording_mbid', 'recording_name', 'artist_mbids', 'artist_credit_name', 'year']
 
-    def fetch(self, params, offset=-1, count=DEFAULT_ROWS):
+    def fetch(self, params, offset=0, count=DEFAULT_ROWS):
 
         if count < 1:
             count = DEFAULT_ROWS
@@ -40,14 +40,18 @@ class AreaRandomRecordingQuery(Query):
 
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
-                query = """SELECT r.gid AS recording_mbid, 
-                                  r.name AS recording_name, 
-                                  ac.id AS artist_credit_id, 
-                                  ac.name AS artist_credit_name,
-                                  date_year AS year
+                query = """SELECT r.gid::TEXT AS recording_mbid
+                                , r.name AS recording_name
+                                , ac.name AS artist_credit_name
+                                , array_agg(a.gid::TEXT) AS artist_mbids
+                                , date_year AS year
                              FROM recording r
                              JOIN artist_credit ac
                                ON r.artist_credit = ac.id
+                             JOIN artist_credit_name acn
+                               ON acn.artist_credit = ac.id
+                             JOIN artist a
+                               ON acn.artist = a.id
                              JOIN track t
                                ON r.id = t.recording
                              JOIN medium m
@@ -67,6 +71,7 @@ class AreaRandomRecordingQuery(Query):
                                         LIMIT 100)
                               AND rc.date_year >= %s
                               AND rc.date_year <= %s
+                         GROUP BY r.gid, r.name, ac.id, ac.name, date_year
                             ORDER BY random()"""
 
                 args = [area, start_year, end_year]
@@ -84,8 +89,6 @@ class AreaRandomRecordingQuery(Query):
                     if not row:
                         break
 
-                    r = dict(row)
-                    r['recording_mbid'] = str(r['recording_mbid'])
                     acs.append(dict(row))
 
                 return acs
