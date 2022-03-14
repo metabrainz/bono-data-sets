@@ -4,9 +4,7 @@ from datasethoster.main import create_app, register_query
 from msid_mapping import MSIDMappingQuery
 from msid_lookup import MSIDLookupQuery
 from artist_msid_lookup import ArtistMSIDLookupQuery
-#from ar_similarity import ArtistCreditSimilarityQuery
 from lb_ar_similarity import ArtistSimilarityQuery
-from lb_ar_similarity_python import ArtistSimilarityPythonQuery
 from rec_similarity import RecordingSimilarityQuery
 from ac_name_lookup import ArtistCreditNameLookupQuery
 from area_random_recording import AreaRandomRecordingQuery
@@ -18,13 +16,13 @@ from releases_from_listen_stream import ReleasesFromListenStream
 from top_new_tracks import TopNewTracksQuery
 from top_missed_tracks import TopMissedTracksQuery
 from bpm_key_from_recording import BPMKeyLookupQuery
+from artist_credit_recording_lookup_tgrm import ArtistCreditRecordingLookupTrigramQuery
+
 
 register_query(MSIDMappingQuery())
 register_query(MSIDLookupQuery())
 register_query(ArtistMSIDLookupQuery())
-#register_query(ArtistCreditSimilarityQuery())
 register_query(ArtistSimilarityQuery())
-register_query(ArtistSimilarityPythonQuery())
 register_query(RecordingSimilarityQuery())
 register_query(ArtistCreditNameLookupQuery())
 register_query(AreaRandomRecordingQuery())
@@ -36,6 +34,7 @@ register_query(ReleasesFromListenStream())
 register_query(TopNewTracksQuery())
 register_query(TopMissedTracksQuery())
 register_query(BPMKeyLookupQuery())
+register_query(ArtistCreditRecordingLookupTrigramQuery())
 
 # Needs to be after register_query
 app = create_app('config')

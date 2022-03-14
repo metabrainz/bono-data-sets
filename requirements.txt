@@ -7,7 +7,7 @@ sentry-sdk[flask]==0.19.3
 typesense
 six
 python-Levenshtein
-git+https://github.com/mayhem/data-set-hoster.git#egg=datasethoster
+git+https://github.com/mayhem/data-set-hoster.git@955d5c6#egg=datasethoster
 pysolr==3.9.0
 icecream
 fuzzywuzzy
