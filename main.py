@@ -2,6 +2,7 @@
 
 from datasethoster.main import create_app, register_query
 from msid_mapping import MSIDMappingQuery
+from typesense_test import MBIDMappingSearchTest
 from msid_lookup import MSIDLookupQuery
 from artist_msid_lookup import ArtistMSIDLookupQuery
 from lb_ar_similarity import ArtistSimilarityQuery
@@ -35,6 +36,7 @@ register_query(TopNewTracksQuery())
 register_query(TopMissedTracksQuery())
 register_query(BPMKeyLookupQuery())
 register_query(ArtistCreditRecordingLookupTrigramQuery())
+register_query(MBIDMappingSearchTest())
 
 # Needs to be after register_query
 app = create_app('config')
