@@ -1,0 +1,23 @@
+version: "3.9"
+
+networks:
+  production:
+    external: true
+  musicbrainz-docker_default:
+    external: true
+
+services:
+
+  bono-data-sets:
+    build:
+      context: . 
+    restart: unless-stopped
+    expose:
+      - "80"
+    environment:
+      - LETSENCRYPT_HOST=datasets.listenbrainz.org
+      - LETSENCRYPT_EMAIL=rob@metabrainz.org
+      - VIRTUAL_HOST=datasets.listenbrainz.org
+    networks:
+      - musicbrainz-docker_default
+      - production
