@@ -3,8 +3,6 @@ import psycopg2.extras
 from datasethoster import Query
 import config
 
-psycopg2.extras.register_uuid()
-
 class TopDiscoveriesQuery(Query):
     '''
         Fetch a list of top discoveries for the current year

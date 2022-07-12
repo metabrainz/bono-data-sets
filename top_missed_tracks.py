@@ -8,8 +8,6 @@ from datasethoster import Query
 import requests
 import config
 
-psycopg2.extras.register_uuid()
-
 class TopMissedTracksQuery(Query):
     '''
         Fetch a list of top tracks that a user's top similar users listened to, but that user didn't.

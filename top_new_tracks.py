@@ -5,8 +5,6 @@ import psycopg2.extras
 from datasethoster import Query
 import config
 
-psycopg2.extras.register_uuid()
-
 class TopNewTracksQuery(Query):
     '''
         Fetch a list of top new tracks for the current year

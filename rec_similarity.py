@@ -13,11 +13,12 @@ class RecordingSimilarityQuery(Query):
         return ("recording-similarity", "MusicBrainz Recording Similarity")
 
     def inputs(self):
-        return ['table', 'filter_same_artist', 'recording_mbid']
+        return ['table', 'recording_mbid']
 
     def introduction(self):
         return """Given a recording MBID, find similar recordings. Table must be a recording similarity
-                  table in the mapping schema. filter_same_artist should be one of (1, 0, t, f)"""
+                  table in the similarity schema. (steps_5_days_1000_session_1800_threshold_5, 
+                  steps_5_days_365_session_1800_threshold_5 or steps_5_days_730_session_1800_threshold_5)"""
 
     def outputs(self):
         return ['similarity', 'artist_credit_name', 'recording_name', 'recording_mbid']
@@ -25,19 +26,17 @@ class RecordingSimilarityQuery(Query):
     def fetch(self, params, offset=0, count=50):
 
         rec_mbid = params[0]['recording_mbid']
-        filter_artists = params[0]['filter_same_artist'].lower() in ("1", "true", "t")
         table = params[0]['table']
-        table = f"mapping.{table}"
+        table = f"similarity.{table}"
 
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
 
                 curs.execute("""SELECT canonical_recording_mbid::TEXT
-                                  FROM mapping.canonical_recording
+                                  FROM mapping.canonical_recording_redirect
                                  WHERE recording_mbid = %s""", (rec_mbid,))
                 if curs.rowcount > 0:
                     rec_mbid = curs.fetchone()["canonical_recording_mbid"]
-                    print("find canonical: %s" % rec_mbid)
         
                 curs.execute("""SELECT acn.artist_credit AS artist_credit_id
                                      , a.gid::TEXT as artist_mbid
@@ -67,11 +66,11 @@ class RecordingSimilarityQuery(Query):
                                       , r1.name AS recording_name_1
                                    FROM {table} rs
                                    JOIN recording r0
-                                     ON r0.gid = rs.mbid0
+                                     ON r0.gid::TEXT = rs.mbid0
                                    JOIN artist_credit ac0
                                      ON r0.artist_credit = ac0.id
                                    JOIN recording r1
-                                     ON r1.gid = rs.mbid1
+                                     ON r1.gid::TEXT = rs.mbid1
                                    JOIN artist_credit ac1
                                      ON r1.artist_credit = ac1.id
                                   WHERE (rs.mbid0 = %s OR rs.mbid1 = %s)
@@ -84,8 +83,6 @@ class RecordingSimilarityQuery(Query):
                         break
 
                     if row['recording_mbid_0'] == rec_mbid:
-                        if filter_artists and row["artist_credit_id_1"] == artist_credit:
-                            continue
                         relations.append({
                             'similarity' : int(row['similarity']),
                             'artist_credit_name' : row['artist_credit_name_1'], 
@@ -93,8 +90,6 @@ class RecordingSimilarityQuery(Query):
                             'recording_mbid' : row['recording_mbid_1']
                         })
                     else:
-                        if filter_artists and row["artist_credit_id_0"] == artist_credit:
-                            continue
                         relations.append({
                             'similarity' : int(row['similarity']),
                             'artist_credit_name' : row['artist_credit_name_0'], 

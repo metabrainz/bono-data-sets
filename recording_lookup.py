@@ -3,7 +3,6 @@ import psycopg2.extras
 from datasethoster import Query
 import config
 
-psycopg2.extras.register_uuid()
 
 class RecordingLookupQuery(Query):
     '''
