@@ -8,6 +8,7 @@ from area_random_recording import AreaRandomRecordingQuery
 from area_lookup import AreaLookupQuery
 #from genre_lookup import GenreLookupQuery
 from artist_country_from_artist_credit_id import ArtistCountryFromArtistCreditIdQuery
+from mb_canonical_data import MusicBrainzCanonicalDataLookup
 from rec_similarity import RecordingSimilarityQuery
 from upcoming_releases import UpcomingReleasesQuery
 
@@ -18,6 +19,7 @@ register_query(AreaRandomRecordingQuery())
 register_query(AreaLookupQuery())
 #register_query(GenreLookupQuery())
 register_query(ArtistCountryFromArtistCreditIdQuery())
+register_query(MusicBrainzCanonicalDataLookup())
 register_query(RecordingSimilarityQuery())
 register_query(UpcomingReleasesQuery())
 
