@@ -1,4 +1,4 @@
-click==7.1.2
+click==8.1.3
 psycopg2-binary==2.8.5
 ujson==2.0.3
 Unidecode==1.1.1
@@ -7,7 +7,7 @@ sentry-sdk[flask]==0.19.3
 typesense
 six
 python-Levenshtein
-git+https://github.com/mayhem/data-set-hoster.git@955d5c6#egg=datasethoster
+git+https://github.com/metabrainz/data-set-hoster.git@master#egg=datasethoster
 pysolr==3.9.0
 icecream
 fuzzywuzzy
