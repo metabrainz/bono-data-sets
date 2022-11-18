@@ -10,16 +10,19 @@ from area_lookup import AreaLookupQuery
 from artist_country_from_artist_credit_id import ArtistCountryFromArtistCreditIdQuery
 from rec_similarity import RecordingSimilarityQuery
 from upcoming_releases import UpcomingReleasesQuery
+from mb_canonical_data import MusicBrainzCanonicalDataLookup
+from releases_from_recording import ReleasesFromRecordingQuery
 
 psycopg2.extras.register_uuid()
 
-register_query(ArtistCreditNameLookupQuery())
+register_query(MusicBrainzCanonicalDataLookup())
 register_query(AreaRandomRecordingQuery())
 register_query(AreaLookupQuery())
 #register_query(GenreLookupQuery())
 register_query(ArtistCountryFromArtistCreditIdQuery())
 register_query(RecordingSimilarityQuery())
 register_query(UpcomingReleasesQuery())
+register_query(ReleasesFromRecordingQuery())
 
 # Needs to be after register_query
 app = create_app('config')
