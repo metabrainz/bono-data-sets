@@ -24,7 +24,11 @@ class MusicBrainzCanonicalDataLookup(Query):
 
     def outputs(self):
         return ['index', 'artist_credit_arg', 'recording_arg',
+<<<<<<< HEAD
                 'artist_credit_name', 'release_name', 'recording_name', 
+=======
+                'artist_credit_name', 'release_name', 'recording_name',
+>>>>>>> 835e655846aea938544efd8dd812142786a7d43e
                 'artist_mbids', 'release_mbid', 'recording_mbid']
 
     def fetch(self, params, offset=-1, count=-1):

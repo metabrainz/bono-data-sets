@@ -16,8 +16,11 @@ RUN apt-get update && apt-get install -y ca-certificates
 
 RUN mkdir /hoster
 WORKDIR /hoster
-COPY . /hoster
+
+COPY requirements.txt /hoster
 RUN python -m pip install -r requirements.txt
+
+COPY . /hoster
 # Change the COPY command below to copy any config files or other 
 # modules you may need (e.g. config.py) to /app:
 COPY main.py config.py /app/
