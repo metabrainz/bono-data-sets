@@ -16,7 +16,7 @@ class ReleasesFromRecordingQuery(Query):
         return """Look the release MBIDs given a recording MBID"""
 
     def outputs(self):
-        return ['src_recording_mbid', 'release_mbid', 'release']
+        return ['src_recording_mbid', 'release_group_mbid', 'release_name', 'release_mbid', 'release']
 
     def fetch(self, params, offset=-1, count=-1):
 
@@ -24,9 +24,11 @@ class ReleasesFromRecordingQuery(Query):
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
 
-                curs.execute("""WITH release_mbids AS (
+                curs.execute("""WITH release_mbids AS MATERIALIZED (
                                          SELECT rl.gid AS release_mbid
+                                              , rg.gid AS release_group_mbid
                                               , r.gid AS recording_mbid
+                                              , rl.name AS release_name
                                            FROM release rl
                                            JOIN medium m
                                              ON m.release = rl.id
@@ -34,10 +36,14 @@ class ReleasesFromRecordingQuery(Query):
                                              ON t.medium = m.id
                                            JOIN recording r
                                              ON t.recording = r.id
+                                           JOIN release_group rg
+                                             ON rl.release_group = rg.id
                                           WHERE r.gid IN %s
                                 ), release_recordings AS (
                                          SELECT rid.recording_mbid AS src_recording_mbid 
                                               , rid.release_mbid AS release_mbid
+                                              , rid.release_group_mbid AS release_group_mbid
+                                              , rid.release_name AS release_name
                                               , r.gid AS recording_mbid
                                               , r.name AS recording_name
                                               , r.length AS duration
@@ -58,6 +64,8 @@ class ReleasesFromRecordingQuery(Query):
                                 )
                                          SELECT src_recording_mbid
                                               , rr.release_mbid
+                                              , rr.release_group_mbid
+                                              , rr.release_name
                                               , array_agg(jsonb_build_object('recording_mbid', rr.recording_mbid,
                                                                              'recording_name', rr.recording_name,
                                                                              'duration', rr.duration,
@@ -66,7 +74,9 @@ class ReleasesFromRecordingQuery(Query):
                                                           ORDER BY rr.medium_position, rr.position) AS release
                                            FROM release_recordings rr
                                        GROUP BY src_recording_mbid
-                                              , rr.release_mbid""", (tuple(mbids),))
+                                              , rr.release_group_mbid
+                                              , rr.release_mbid
+                                              , rr.release_name""", (tuple(mbids),))
 
                 results = []
                 while True:

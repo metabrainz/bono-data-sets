@@ -12,25 +12,25 @@ class TopDiscoveriesQuery(Query):
         return ("top-discoveries", "Tracks first listened to this year.")
 
     def inputs(self):
-        return ['user_name']
+        return ['user_id']
 
     def introduction(self):
         return """Look up the tracks a user first listened to this year."""
 
     def outputs(self):
-        return ['recording_mbid', 'recording_name', 'artist_credit_name', 'artist_mbids', 'listen_count', 'user_name']
+        return ['recording_mbid', 'recording_name', 'artist_credit_name', 'artist_mbids', 'listen_count', 'user_id']
 
     def fetch(self, params, offset=-1, count=-1):
 
-        user_name = tuple([ psycopg2.extensions.adapt(p['user_name']) for p in params ])
+        user_id = tuple([ psycopg2.extensions.adapt(p['user_id']) for p in params ])
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
                 query = '''SELECT * 
                              FROM mapping.top_discoveries
-                            WHERE user_name = %s 
+                            WHERE user_id = %s 
                          ORDER BY listen_count DESC'''
 
-                curs.execute(query, tuple(user_name))
+                curs.execute(query, tuple(user_id))
                 output = []
                 while True:
                     row = curs.fetchone()
