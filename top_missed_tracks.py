@@ -17,7 +17,7 @@ class TopMissedTracksQuery(Query):
         return ("top-missed-tracks", "Tracks that a user's most similar users listened to in 2021, but the user themselves didn't.")
 
     def inputs(self):
-        return ['user_name']
+        return ['user_id', 'user_name']
 
     def introduction(self):
         return """This query returns tracks that your most similar users listened to a lot, but that did not
@@ -28,8 +28,9 @@ class TopMissedTracksQuery(Query):
 
     def fetch(self, params, offset=0, count=50):
 
+        user_name = params[0]["user_name"]
+        user_id = params[0]["user_id"]
         while True:
-            user_name = params[0]["user_name"]
             r = requests.get(f"https://api.listenbrainz.org/1/user/{user_name}/similar-users")
             if r.status_code == 429:
                 print("429! Sleeping 1s")
@@ -57,20 +58,20 @@ class TopMissedTracksQuery(Query):
                 query = """WITH exclude_tracks AS (
                            SELECT recording_mbid
                              FROM mapping.tracks_of_the_year t
-                            WHERE user_name = %s
+                            WHERE user_id = %s
                        ) SELECT recording_mbid
                               , recording_name
                               , artist_credit_name
                               , artist_mbids
                               , sum(listen_count) AS listen_count
                              FROM mapping.tracks_of_the_year t
-                            WHERE user_name IN (%s, %s, %s)
+                            WHERE user_id IN (%s, %s, %s)
                               AND recording_mbid NOT IN (SELECT * FROM exclude_tracks)
                          GROUP BY recording_mbid, recording_name, artist_credit_name, artist_mbids
                          ORDER BY listen_count DESC
                             LIMIT 100"""
 
-                users = [ user_name ] 
+                users = [ user_id ] 
                 users.extend(similar_users[:3])
                 curs.execute(query, tuple(users))
                 output = []
