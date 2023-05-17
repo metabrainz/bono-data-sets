@@ -12,7 +12,7 @@ class ArtistLookupQuery(Query):
         return ['[artist_mbid]']
 
     def introduction(self):
-        return """"""
+        return """Lookup an artist from a given name."""
 
     def outputs(self):
         return ['artist_mbid', 'artist_name', 'artist_sortname', 'type', 'gender']
@@ -25,13 +25,17 @@ class ArtistLookupQuery(Query):
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
                 query = """SELECT gid AS artist_mbid
                                 , name AS artist_name
-                                , sortname AS artist_sortname
+                                , sort_name AS artist_sortname
                                 , type
                                 , gender
                              FROM artist
                             WHERE gid in %s"""
 
-                curs.execute(query, artist_mbids)
+                try:
+                    curs.execute(query, (artist_mbids,))
+                except psycopg2.errors.InvalidTextRepresentation:
+                    return []
+
                 output = []
                 while True:
                     row = curs.fetchone()
