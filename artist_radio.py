@@ -6,7 +6,7 @@ import config
 from troi.patches.artist_radio import ArtistRadioPatch
 from troi.core import generate_playlist
 from troi.playlist import LISTENBRAINZ_SERVER_URL
-from datasethoster.exceptions import RedirectError
+from datasethoster.exceptions import RedirectError, QueryError
 
 class ArtistRadioQuery(Query):
 
@@ -29,10 +29,17 @@ class ArtistRadioQuery(Query):
         artist_mbids = tuple([ p['[artist_mbid]'].lower() for p in params ])
 
         patch = ArtistRadioPatch()
-        playlist = generate_playlist(patch, args={ "mode": mode,
-            "artist_mbid": artist_mbids,
-            "token": config.TROI_BOT_TOKEN,
-            "upload": True})
+        try:
+            playlist = generate_playlist(patch, args={ "mode": mode,
+                "artist_mbid": artist_mbids,
+                "token": config.TROI_BOT_TOKEN,
+                "upload": True})
+        except RuntimeError as err:
+            raise QueryError(err)
+
+        if playlist is None:
+            raise QueryError("""No playlist was generated -- we likely do not have enough information to generate a
+                                playlist for one of the seed artists.""")
 
         results = []
         for r in playlist.playlists[0].recordings:
