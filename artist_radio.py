@@ -17,7 +17,8 @@ class ArtistRadioQuery(Query):
         return ['[artist_mbid]', 'mode']
 
     def introduction(self):
-        return """Generate an experimental artist-radio playlist. Mode must be one of easy, medium or hard."""
+        return """Generate an experimental artist-radio playlist. Mode must be one of easy, medium or hard. Please
+                  be patient, generating playlists takes a few moments!"""
 
     def outputs(self):
         return ['artist_name', 'recording_name', 'recording_mbid']
