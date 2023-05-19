@@ -17,7 +17,8 @@ from top_discoveries import TopDiscoveriesQuery
 from popular_recordings import PopularRecordingsByArtistQuery
 from artist_lookup import ArtistLookupQuery
 from artist_radio import ArtistRadioQuery
-from recording_from_genre import RecordingFromGenreQuery
+from recording_from_tags import RecordingFromTagsQuery
+from tag_radio import TagRadioQuery
 
 psycopg2.extras.register_uuid()
 
@@ -34,7 +35,8 @@ register_query(TopDiscoveriesQuery())
 register_query(PopularRecordingsByArtistQuery())
 register_query(ArtistLookupQuery())
 register_query(ArtistRadioQuery())
-register_query(RecordingFromGenreQuery())
+register_query(RecordingFromTagsQuery())
+register_query(TagRadioQuery())
 
 # Needs to be after register_query
 app = create_app('config')

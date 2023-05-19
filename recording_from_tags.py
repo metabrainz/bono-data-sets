@@ -3,23 +3,23 @@ import psycopg2.extras
 from datasethoster import Query
 import config
 
-class RecordingFromGenreQuery(Query):
+class RecordingFromTagsQuery(Query):
 
     def names(self):
-        return ("recording-from-genre", "Return random recordings that match given genres")
+        return ("recording-from-tag", "Return random recordings that match given tags")
 
     def inputs(self):
-        return ['[genre]']
+        return ['[tag]']
 
     def introduction(self):
-        return """Return random recordings that have been tagged with one or more genre tags."""
+        return """Return random recordings that have been tagged with one or more tag tags."""
 
     def outputs(self):
         return ['recording_mbid']
 
-    def fetch(self, params, offset=-1, count=50):
+    def fetch(self, params, offset=-1, count=100):
 
-        genre = tuple([ p['[genre]'].lower() for p in params ])
+        tag = tuple([ p['[tag]'].lower() for p in params ])
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
                 query = """WITH recordings AS (
@@ -42,7 +42,7 @@ class RecordingFromGenreQuery(Query):
                                    LIMIT %s"""
 
                 try:
-                    curs.execute(query, (genre, len(genre), count))
+                    curs.execute(query, (tag, len(tag), count))
                 except psycopg2.errors.InvalidTextRepresentation:
                     return []
 
