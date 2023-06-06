@@ -33,14 +33,14 @@ class RecordingFromTagsQuery(Query):
                                     JOIN tag t
                                       ON t.id = rt.tag
                                    WHERE t.name in %s
-                                GROUP BY recording_mbid, t.name
+                                GROUP BY recording_mbid, count, t.name
                              )
                                   SELECT recording_mbid
                                     FROM recordings recs
                                    WHERE recs.rnum = %s
                                 ORDER BY recs.rand
                                    LIMIT %s"""
-
+#                                     AND count > 1
                 try:
                     curs.execute(query, (tag, len(tag), count))
                 except psycopg2.errors.InvalidTextRepresentation:
