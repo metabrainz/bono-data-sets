@@ -23,6 +23,8 @@ from tag_radio import TagRadioQuery
 from rg_tag_radio import ReleaseGroupTagRadioQuery
 from popular_releases_by_listencount import PopularReleasesFromTotalListenCountQuery
 from popular_releases_by_listeners import PopularReleasesFromTotalListenersQuery
+from popular_artists_by_listencount import PopularArtistsFromTotalListenCountQuery
+from popular_artists_by_listeners import PopularArtistsFromTotalListenersQuery
 
 psycopg2.extras.register_uuid()
 
@@ -45,6 +47,8 @@ register_query(TagRadioQuery())
 register_query(ReleaseGroupTagRadioQuery())
 register_query(PopularReleasesFromTotalListenCountQuery())
 register_query(PopularReleasesFromTotalListenersQuery())
+register_query(PopularArtistsFromTotalListenCountQuery())
+register_query(PopularArtistsFromTotalListenersQuery())
 
 # Needs to be after register_query
 app = create_app('config')
