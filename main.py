@@ -16,11 +16,8 @@ from releases_from_recording import ReleasesFromRecordingQuery
 from top_discoveries import TopDiscoveriesQuery
 from popular_recordings import PopularRecordingsByArtistQuery
 from artist_lookup import ArtistLookupQuery
-from artist_radio import ArtistRadioQuery
+from lb_radio import LBRadioQuery
 from recording_from_tags import RecordingFromTagsQuery
-from recording_from_rg_tags import RecordingFromReleaseGroupTagsQuery
-from tag_radio import TagRadioQuery
-from rg_tag_radio import ReleaseGroupTagRadioQuery
 from popular_releases_by_listencount import PopularReleasesFromTotalListenCountQuery
 from popular_releases_by_listeners import PopularReleasesFromTotalListenersQuery
 from popular_artists_by_listencount import PopularArtistsFromTotalListenCountQuery
@@ -42,11 +39,8 @@ register_query(ReleasesFromRecordingQuery())
 register_query(TopDiscoveriesQuery())
 register_query(PopularRecordingsByArtistQuery())
 register_query(ArtistLookupQuery())
-register_query(ArtistRadioQuery())
+register_query(LBRadioQuery())
 register_query(RecordingFromTagsQuery())
-register_query(RecordingFromReleaseGroupTagsQuery())
-register_query(TagRadioQuery())
-register_query(ReleaseGroupTagRadioQuery())
 register_query(PopularReleasesFromTotalListenCountQuery())
 register_query(PopularReleasesFromTotalListenersQuery())
 register_query(PopularArtistsFromTotalListenCountQuery())
