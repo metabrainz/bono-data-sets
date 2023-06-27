@@ -19,15 +19,13 @@ class LBRadioQuery(Query):
     def introduction(self):
         return f"""Generate an experimental LB radio playlist. Mode must be one of easy, medium or hard. Please
                    be patient, generating playlists takes a few moments! For docs, see 
-                   https://gist.github.com/mayhem/9e8583848a40248d23c744c274ca2f6e 
+                   https://troi.readthedocs.io/en/lb-radio/lb_radio.html
                    """
 
     def outputs(self):
         return ['artist_name', 'recording_name', 'recording_mbid']
 
     def fetch(self, params, offset=-1, count=-1):
-
-        print(f"'{params[0]['prompt']}'")
 
         patch = LBRadioPatch()
         try:
