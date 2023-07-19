@@ -17,13 +17,13 @@ from top_discoveries import TopDiscoveriesQuery
 from popular_recordings import PopularRecordingsByArtistQuery
 from artist_lookup import ArtistLookupQuery
 from lb_radio import LBRadioQuery
-from recording_from_tags import RecordingFromTagsQuery
 from popular_releases_by_listencount import PopularReleasesFromTotalListenCountQuery
 from popular_releases_by_listeners import PopularReleasesFromTotalListenersQuery
 from popular_artists_by_listencount import PopularArtistsFromTotalListenCountQuery
 from popular_artists_by_listeners import PopularArtistsFromTotalListenersQuery
 from popular_recordings_by_listeners import PopularRecordingsFromTotalListenersQuery
 from popular_recordings_by_listencount import PopularRecordingsFromTotalListenCountQuery
+from feedback_lookup import FeedbackLookupQuery
 
 psycopg2.extras.register_uuid()
 
@@ -40,13 +40,13 @@ register_query(TopDiscoveriesQuery())
 register_query(PopularRecordingsByArtistQuery())
 register_query(ArtistLookupQuery())
 register_query(LBRadioQuery())
-register_query(RecordingFromTagsQuery())
 register_query(PopularReleasesFromTotalListenCountQuery())
 register_query(PopularReleasesFromTotalListenersQuery())
 register_query(PopularArtistsFromTotalListenCountQuery())
 register_query(PopularArtistsFromTotalListenersQuery())
 register_query(PopularRecordingsFromTotalListenersQuery())
 register_query(PopularRecordingsFromTotalListenCountQuery())
+register_query(FeedbackLookupQuery())
 
 # Needs to be after register_query
 app = create_app('config')

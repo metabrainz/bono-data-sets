@@ -40,8 +40,8 @@ class LBRadioQuery(Query):
         except RuntimeError as err:
             raise QueryError(err)
 
-        if playlist is None:
-            raise QueryError("""No playlist was generated -- the prompt did not generate any matching recordings.""")
+#        if playlist is None:
+#            raise QueryError("""No playlist was generated -- the prompt did not generate any matching recordings.""")
 
         data = []
         self.playlist_name = playlist.playlists[0].name
