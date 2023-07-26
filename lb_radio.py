@@ -23,7 +23,7 @@ class LBRadioQuery(Query):
     def introduction(self):
         return f"""Generate an experimental LB radio playlist. Mode must be one of easy, medium or hard. Please
                    be patient, generating playlists takes a few moments! For docs, see 
-                   <a href="https://troi.readthedocs.io/en/lb-radio/lb_radio.html">LB Radio documentation</a>.
+                   <a href="https://troi.readthedocs.io/en/add-user-stats-entity/lb_radio.html">LB Radio documentation</a>.
                    """
 
     def outputs(self):
@@ -40,22 +40,23 @@ class LBRadioQuery(Query):
         except RuntimeError as err:
             raise QueryError(err)
 
-#        if playlist is None:
-#            raise QueryError("""No playlist was generated -- the prompt did not generate any matching recordings.""")
-
         data = []
-        self.playlist_name = playlist.playlists[0].name
-        self.playlist_desc = playlist.playlists[0].description
-        for r in playlist.playlists[0].recordings:
-            data.append({ "recording_mbid": r.mbid,
-                          "artist_name": r.artist.name,
-                          "recording_name": r.name })
+        feedback = []
+        if playlist is None:
+            feedback.append("""No playlist was generated -- the prompt did not generate any matching recordings.""")
+        else:
+            self.playlist_name = playlist.playlists[0].name
+            self.playlist_desc = playlist.playlists[0].description
+            for r in playlist.playlists[0].recordings:
+                data.append({ "recording_mbid": r.mbid,
+                              "artist_name": r.artist.name,
+                              "recording_name": r.name })
 
         result = []
-        feedback = patch.user_feedback() 
+        feedback.extend(patch.user_feedback())
         if feedback is not None:
             markup = "<h3>User Feedback</h3><ul>"
-            for feedback in patch.user_feedback():
+            for feedback in feedback:
                 markup += f"<li>{ feedback}</li>"
             markup += "</ul>"
             result.append(
