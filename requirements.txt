@@ -9,5 +9,5 @@ python-Levenshtein==0.21.0
 datasethoster@git+https://github.com/mayhem/data-set-hoster.git@improve-playlist-button
 pysolr==3.9.0
 ago==0.0.95
-troi@git+https://github.com/metabrainz/troi-recommendation-playground@add-user-stats-entity
+troi@git+https://github.com/metabrainz/troi-recommendation-playground@main
 wheel

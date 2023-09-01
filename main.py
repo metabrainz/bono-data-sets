@@ -24,6 +24,7 @@ from popular_artists_by_listeners import PopularArtistsFromTotalListenersQuery
 from popular_recordings_by_listeners import PopularRecordingsFromTotalListenersQuery
 from popular_recordings_by_listencount import PopularRecordingsFromTotalListenCountQuery
 from feedback_lookup import FeedbackLookupQuery
+from tag_similarity import TagSimilarityQuery
 
 psycopg2.extras.register_uuid()
 
@@ -47,6 +48,7 @@ register_query(PopularArtistsFromTotalListenersQuery())
 register_query(PopularRecordingsFromTotalListenersQuery())
 register_query(PopularRecordingsFromTotalListenCountQuery())
 register_query(FeedbackLookupQuery())
+register_query(TagSimilarityQuery())
 
 # Needs to be after register_query
 app = create_app('config')
