@@ -5,33 +5,8 @@ import psycopg2.extras
 from werkzeug.exceptions import BadRequest
 from datasethoster import Query
 import config
+from popular_tags import POPULAR_TAGS
 
-
-POPULAR_TAGS = [
-    "electronic",
-    "downtempo",
-    "hip hop",
-    "ambient",
-    "rock", 
-    "house", 
-    "dance", 
-    "experimental", 
-    "pop", 
-    "chillout", 
-    "electronica", 
-    "jazz", 
-    "electro",
-    "alternative rock",
-    "dub",
-    "acid jazz",
-    "indie",
-    "trance",
-    "reggae", 
-    "progressive house",
-    "abstract",
-    "drum and bass",
-    "electronica dance"
-]
 
 class TagSimilarityQuery(Query):
 
@@ -77,16 +52,17 @@ class TagSimilarityQuery(Query):
                     if not row:
                         break
 
-                    if row['tag_0'] in POPULAR_TAGS or row['tag_1'] in POPULAR_TAGS:
-                        continue
-
                     if row['tag_0'] == tag:
+                        if row['tag_1'] in POPULAR_TAGS:
+                            continuet
                         relations.append({
                             'tag_0' : row['tag_0'], 
                             'tag_1' : row['tag_1'], 
                             'count' : int(row['count']),
                         })
                     else:
+                        if row['tag_0'] in POPULAR_TAGS:
+                            continue
                         relations.append({
                             'tag_0' : row['tag_0'], 
                             'tag_1' : row['tag_1'], 
