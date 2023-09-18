@@ -41,6 +41,7 @@ POPULAR_TAGS = [
     "progressive rock", 
     "latin", 
     "rock and roll", 
+    "rock pop", 
     "new wave", 
     "idm", 
     "funk", 
@@ -217,6 +218,9 @@ POPULAR_TAGS = [
     "melodic death metal", 
     "latin jazz", 
     "darkwave", 
+
+    # And some other tags that we should not select...
+    "pregaptrack",
 ]
 
 POPULAR_TAGS_QUERY = """

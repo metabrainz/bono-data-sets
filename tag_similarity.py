@@ -17,10 +17,10 @@ class TagSimilarityQuery(Query):
         return ['tag']
 
     def introduction(self):
-        return """Given a tag, find similar tags ignoring the most popular tags. (e.g. pop, rock, punk, etc)"""
+        return """Given a tag, find similar tags that are not poplular tags. (e.g. pop, rock, punk, etc)"""
 
     def outputs(self):
-        return ['tag_0', 'tag_1', 'count']
+        return ['similar_tag', 'count']
 
     def fetch(self, params, offset=0, count=50):
 
@@ -52,20 +52,21 @@ class TagSimilarityQuery(Query):
                     if not row:
                         break
 
+                    if int(row['count']) < 5:
+                        continue
+
                     if row['tag_0'] == tag:
-                        if row['tag_1'] in POPULAR_TAGS:
-                            continuet
+                        if row['tag_1'] in POPULAR_TAGS or row['tag_1'] == tag:
+                            continue
                         relations.append({
-                            'tag_0' : row['tag_0'], 
-                            'tag_1' : row['tag_1'], 
+                            'similar_tag' : row['tag_1'], 
                             'count' : int(row['count']),
                         })
                     else:
-                        if row['tag_0'] in POPULAR_TAGS:
+                        if row['tag_0'] in POPULAR_TAGS  or row['tag_0'] == tag:
                             continue
                         relations.append({
-                            'tag_0' : row['tag_0'], 
-                            'tag_1' : row['tag_1'], 
+                            'similar_tag' : row['tag_0'], 
                             'count' : int(row['count']),
                         })
 
