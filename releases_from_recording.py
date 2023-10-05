@@ -16,7 +16,7 @@ class ReleasesFromRecordingQuery(Query):
         return """Look the release MBIDs given a recording MBID"""
 
     def outputs(self):
-        return ['src_recording_mbid', 'release_group_mbid', 'release_name', 'release_mbid', 'release']
+        return ['release_group_mbid', 'releases']
 
     def fetch(self, params, offset=-1, count=-1):
 
@@ -24,11 +24,9 @@ class ReleasesFromRecordingQuery(Query):
         with psycopg2.connect(config.DB_CONNECT_MB) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
 
-                curs.execute("""WITH release_mbids AS MATERIALIZED (
-                                         SELECT rl.gid AS release_mbid
+                curs.execute("""WITH release_group_mbids AS MATERIALIZED (
+                                         SELECT distinct(rg.id) AS release_group_id
                                               , rg.gid AS release_group_mbid
-                                              , r.gid AS recording_mbid
-                                              , rl.name AS release_name
                                            FROM release rl
                                            JOIN medium m
                                              ON m.release = rl.id
@@ -40,15 +38,14 @@ class ReleasesFromRecordingQuery(Query):
                                              ON rl.release_group = rg.id
                                           WHERE r.gid IN %s
                                 ), release_recordings AS (
-                                         SELECT rid.recording_mbid AS src_recording_mbid 
-                                              , rid.release_mbid AS release_mbid
-                                              , rid.release_group_mbid AS release_group_mbid
-                                              , rid.release_name AS release_name
-                                              , r.gid AS recording_mbid
-                                              , r.name AS recording_name
-                                              , r.length AS duration
-                                              , t.position
-                                              , m.position as medium_position
+                                         SELECT rgid.release_group_mbid
+                                              , rl.gid AS release_mbid
+                                              , array_agg(jsonb_build_array(r.gid,            
+                                                                             r.name,           
+                                                                             r.length,   
+                                                                             t.position, 
+                                                                             m.position)
+                                                          ORDER BY m.position, t.position) AS release         
                                            FROM recording r
                                            JOIN track t
                                              ON t.recording = r.id
@@ -56,27 +53,16 @@ class ReleasesFromRecordingQuery(Query):
                                              ON t.medium = m.id
                                            JOIN release rl
                                              ON m.release = rl.id
-                                           JOIN release_mbids rid
-                                             ON rl.gid = rid.release_mbid
-                                       ORDER BY rid.release_mbid
-                                              , m.position
-                                              , t.position
-                                )
-                                         SELECT src_recording_mbid
-                                              , rr.release_mbid
-                                              , rr.release_group_mbid
-                                              , rr.release_name
-                                              , array_agg(jsonb_build_object('recording_mbid', rr.recording_mbid,
-                                                                             'recording_name', rr.recording_name,
-                                                                             'duration', rr.duration,
-                                                                             'position', rr.position,
-                                                                             'medium_position', rr.medium_position)
-                                                          ORDER BY rr.medium_position, rr.position) AS release
+                                           JOIN release_group_mbids rgid
+                                             ON rl.release_group = rgid.release_group_id
+                                       GROUP BY rgid.release_group_mbid  
+                                              , rl.gid
+                                 )
+                                         SELECT rr.release_group_mbid::TEXT
+                                              , array_agg(jsonb_build_array(rr.release_mbid, rr.release)) AS releases
                                            FROM release_recordings rr
-                                       GROUP BY src_recording_mbid
-                                              , rr.release_group_mbid
-                                              , rr.release_mbid
-                                              , rr.release_name""", (tuple(mbids),))
+                                       GROUP BY rr.release_group_mbid
+                                       """, (tuple(mbids),))
 
                 results = []
                 while True:
@@ -84,6 +70,11 @@ class ReleasesFromRecordingQuery(Query):
                     if not row:
                         break
 
-                    results.append(dict(row))
+                    row = dict(row)
+                    releases = {}
+                    for r in row["releases"]:
+                        releases[r[0]] = r[1]
+
+                    results.append({ "release_group_mbid": row["release_group_mbid"], "releases": releases })
 
                 return results
